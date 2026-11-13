@@ -10,7 +10,7 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "helium314.keyboard"
+        applicationId = "rs.valentina11b.keyboard"
         minSdk = 21
         targetSdk = 37
         versionCode = 4300
