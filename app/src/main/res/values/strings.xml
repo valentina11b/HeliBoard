@@ -930,6 +930,10 @@ New dictionary:
     <!-- Title of the setting for horizontal spacebar swipe gesture -->
     <!-- Option to choose the key sounds of the Mechanical style -->
     <string name="mechanical_sound_pack">Mechanical sound pack</string>
+    <!-- Option to choose the key vibrations of the Mechanical style -->
+    <string name="mechanical_vibration_pack">Mechanical vibration pack</string>
+    <!-- Description for mechanical_vibration_pack -->
+    <string name="mechanical_vibration_pack_summary">Not used while a custom vibration duration is set</string>
     <string name="sound_pack_classic">Classic</string>
     <string name="sound_pack_thock">Thock (deep)</string>
     <string name="sound_pack_clicky">Clicky</string>
@@ -1296,6 +1300,29 @@ New dictionary:
     <string name="background_gathering" tools:keep="@string/background_gathering">Background data gathering</string>
     <string name="passwords" tools:keep="@string/passwords">Passwords</string>
     <string name="translate" tools:keep="@string/translate">Translate</string>
+    <string name="quick_settings" tools:keep="@string/quick_settings">Quick settings</string>
+    <!-- Tiles in the quick settings panel -->
+    <string name="quick_colors">Colors</string>
+    <string name="quick_style">Style</string>
+    <string name="quick_resize">Resize</string>
+    <string name="quick_transparency">Transparency</string>
+    <!-- Transparency slider label in quick settings, %d is the percentage -->
+    <string name="quick_transparency_value">Transparency: %d%%</string>
+    <string name="quick_one_handed">One-handed</string>
+    <string name="quick_floating">Floating</string>
+    <string name="quick_split">Split</string>
+    <string name="quick_number_row">Number row</string>
+    <string name="quick_hints">Key hints</string>
+    <string name="quick_incognito">Incognito</string>
+    <string name="quick_autocorrect">Autocorrect</string>
+    <string name="quick_sound">Sound</string>
+    <string name="quick_vibration">Vibration</string>
+    <string name="quick_back">Back</string>
+    <string name="quick_close">Close</string>
+    <string name="quick_done">Done</string>
+    <string name="quick_reset">Reset</string>
+    <string name="quick_off">Off</string>
+    <string name="quick_on">On</string>
     <!-- Review screen menu entry to display actively gathered data
      string will probably be removed once data gathering is finished (end of 2026 latest) -->
     <string name="gesture_data_show_active">Show actively gathered data</string>

@@ -62,6 +62,9 @@ fun PreferencesScreen(
             Settings.PREF_VIBRATION_DURATION_SETTINGS else null,
         if (prefs.getBoolean(Settings.PREF_VIBRATE_ON, Defaults.PREF_VIBRATE_ON))
             Settings.PREF_VIBRATE_IN_DND_MODE else null,
+        if (prefs.getBoolean(Settings.PREF_VIBRATE_ON, Defaults.PREF_VIBRATE_ON)
+            && prefs.getString(Settings.PREF_THEME_STYLE, Defaults.PREF_THEME_STYLE) == KeyboardTheme.STYLE_MECHANICAL)
+            Settings.PREF_MECHANICAL_VIBRATION_PACK else null,
         Settings.PREF_SOUND_ON,
         if (prefs.getBoolean(Settings.PREF_SOUND_ON, Defaults.PREF_SOUND_ON))
             Settings.PREF_KEYPRESS_SOUND_VOLUME else null,
@@ -242,6 +245,16 @@ fun createPreferencesSettings(context: Context) = listOf(
             range = -1f..100f,
             onValueChanged = { it?.let { AudioAndHapticFeedbackManager.getInstance().vibrate(it.toLong()) } }
         )
+    },
+    Setting(context, Settings.PREF_MECHANICAL_VIBRATION_PACK, R.string.mechanical_vibration_pack, R.string.mechanical_vibration_pack_summary) {
+        val items = listOf(
+            stringResource(R.string.sound_pack_classic) to "classic",
+            stringResource(R.string.sound_pack_thock) to "thock",
+            stringResource(R.string.sound_pack_clicky) to "clicky",
+            stringResource(R.string.sound_pack_typewriter) to "typewriter",
+            stringResource(R.string.sound_pack_soft) to "soft",
+        )
+        ListPreference(it, items, Defaults.PREF_MECHANICAL_VIBRATION_PACK)
     },
     Setting(context, Settings.PREF_MECHANICAL_SOUND_PACK, R.string.mechanical_sound_pack) {
         val items = listOf(

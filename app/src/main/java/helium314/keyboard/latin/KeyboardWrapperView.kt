@@ -13,6 +13,7 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import helium314.keyboard.keyboard.KeyboardActionListener
 import helium314.keyboard.keyboard.KeyboardSwitcher
+import helium314.keyboard.keyboard.QuickSettingsView
 import helium314.keyboard.keyboard.internal.KeyboardIconsSet
 import helium314.keyboard.keyboard.internal.keyboard_parser.floris.KeyCode
 import helium314.keyboard.latin.common.ColorType
@@ -162,5 +163,11 @@ class KeyboardWrapperView @JvmOverloads constructor(
         stopOneHandedModeBtn.setLayout((keyboardView.measuredHeight * 0.2f).toInt())
         switchOneHandedModeBtn.setLayout((keyboardView.measuredHeight * 0.5f).toInt())
         resizeOneHandedModeBtn.setLayout((keyboardView.measuredHeight * 0.8f).toInt())
+
+        // quick settings panel covers keyboard and buttons, it's measured for the full width
+        for (i in 0 until childCount) {
+            val child = getChildAt(i)
+            if (child is QuickSettingsView) child.layout(0, 0, width, keyboardView.measuredHeight)
+        }
     }
 }

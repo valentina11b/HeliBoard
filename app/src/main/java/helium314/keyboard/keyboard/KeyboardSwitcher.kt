@@ -251,6 +251,8 @@ class KeyboardSwitcher private constructor() {
             outInsets.touchableInsets = InputMethodService.Insets.TOUCHABLE_INSETS_REGION
             outInsets.touchableRegion.set(touchLeft, touchTop, touchRight, touchBottom)
         }
+        if (resizeOverlay != null) // the whole screen, so the resize frame can be dragged above the keyboard
+            outInsets.touchableInsets = InputMethodService.Insets.TOUCHABLE_INSETS_FRAME
 
 
         // Has to be subtracted after calculating touchableRegion
@@ -288,6 +290,93 @@ class KeyboardSwitcher private constructor() {
                 Log.e(TAG, "even fallback to defaults failed: ${e2.keyboardId}", e2.cause)
             }
         }
+        pendingQuickSettingsPage?.let { page ->
+            pendingQuickSettingsPage = null
+            showQuickSettings(page)
+        }
+    }
+
+    // quick settings panel, shown over the keyboard
+    private var quickSettings: QuickSettingsView? = null
+    private var pendingQuickSettingsPage: String? = null
+    val isShowingQuickSettings get() = quickSettings?.parent != null
+
+    fun toggleQuickSettings() = if (isShowingQuickSettings) hideQuickSettings() else showQuickSettings(QuickSettingsView.PAGE_MAIN)
+
+    private fun showQuickSettings(page: String) {
+        val wrapper = wrapperView ?: return
+        hideQuickSettings()
+        val view = QuickSettingsView(themeContext, latinIME.mKeyboardActionListener)
+        view.page = page.ifEmpty { null }
+        wrapper.addView(view, android.widget.FrameLayout.LayoutParams(
+            android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT))
+        quickSettings = view
+    }
+
+    /** Shows a transparency without saving it, see [InputView] for where the saved value is applied. */
+    fun previewTransparency(percent: Int) {
+        inputView?.root?.alpha = 1f - percent / 100f
+    }
+
+    fun hideQuickSettings() {
+        quickSettings?.let { (it.parent as? android.view.ViewGroup)?.removeView(it) }
+        quickSettings = null
+    }
+
+    // resize mode: the input view temporarily fills the screen so the frame can be dragged above the keyboard
+    private var resizeOverlay: ResizeOverlayView? = null
+
+    fun startResizeMode() {
+        val root = inputView?.root ?: return
+        hideQuickSettings()
+        root.layoutParams = root.layoutParams?.apply { height = android.view.ViewGroup.LayoutParams.MATCH_PARENT }
+        val prefs = latinIME.prefs()
+        val landscape = themeContext.resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+        val scale = Settings.readHeightScale(prefs, landscape, helium314.keyboard.latin.utils.FoldableUtils.isFolded)
+        val overlay = ResizeOverlayView(themeContext, { keyboardTopInRoot() }, { keyboardBottomInRoot() }, scale) { factor -> endResizeMode(factor) }
+        (root as android.view.ViewGroup).addView(overlay, android.widget.FrameLayout.LayoutParams(
+            android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT))
+        resizeOverlay = overlay
+    }
+
+    private fun keyboardTopInRoot(): Int {
+        val wrapper = wrapperView ?: return 0
+        val root = inputView?.root ?: return 0
+        val a = IntArray(2)
+        val b = IntArray(2)
+        wrapper.getLocationInWindow(a)
+        root.getLocationInWindow(b)
+        return a[1] - b[1]
+    }
+
+    private fun keyboardBottomInRoot(): Int {
+        val keyboardView = mainKeyboardView ?: return 0
+        return keyboardTopInRoot() + keyboardView.height - keyboardView.paddingBottom
+    }
+
+    /** [factor] scales the current keyboard height, null resets it to the default. */
+    private fun endResizeMode(factor: Float?) {
+        val root = inputView?.root ?: return
+        resizeOverlay?.let { (root as android.view.ViewGroup).removeView(it) }
+        resizeOverlay = null
+        root.layoutParams = root.layoutParams?.apply { height = android.view.ViewGroup.LayoutParams.WRAP_CONTENT }
+        val prefs = latinIME.prefs()
+        val landscape = themeContext.resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+        val folded = helium314.keyboard.latin.utils.FoldableUtils.isFolded
+        val index = helium314.keyboard.latin.settings.findIndexOfDefaultSetting(landscape, folded)
+        val key = helium314.keyboard.latin.settings.createPrefKeyForBooleanSettings(Settings.PREF_KEYBOARD_HEIGHT_SCALE_PREFIX, index, 2)
+        val scale = factor?.let { (Settings.readHeightScale(prefs, landscape, folded) * it)
+            .coerceIn(ResizeOverlayView.MIN_SCALE, ResizeOverlayView.MAX_SCALE) }
+            ?: helium314.keyboard.latin.settings.Defaults.PREF_KEYBOARD_HEIGHT_SCALE[index]
+        prefs.edit().putFloat(key, scale).apply()
+        setThemeNeedsReload()
+    }
+
+    /** Reloads the keyboard for changed settings, and shows quick settings again afterwards. */
+    fun reloadWithQuickSettings(page: String?) {
+        hideQuickSettings()
+        pendingQuickSettingsPage = page ?: QuickSettingsView.PAGE_MAIN
+        setThemeNeedsReload()
     }
 
     fun onHideWindow() {
@@ -556,6 +645,7 @@ class KeyboardSwitcher private constructor() {
         }
 
         override fun setEmojiKeyboard() {
+            hideQuickSettings()
             val inputView = inputView ?: return
             if (KeyboardState.SwitchActions.DEBUG_ACTION) {
                 Log.d(TAG, "setEmojiKeyboard")
@@ -576,6 +666,7 @@ class KeyboardSwitcher private constructor() {
         }
 
         override fun setClipboardKeyboard() {
+            hideQuickSettings()
             val inputView = inputView ?: return
             if (KeyboardState.SwitchActions.DEBUG_ACTION) {
                 Log.d(TAG, "setClipboardKeyboard")

@@ -64,6 +64,15 @@ ICONS = {
     "split": ("layout-columns", False),
     "password": ("key", False),
     "translate": ("language", False),
+    # quick settings panel
+    "quick_settings": ("layout-grid", False),
+    "palette": ("palette", False),
+    "style": ("brush", False),
+    "resize": ("arrows-diagonal", False),
+    "hints": ("superscript", False),
+    "sound": ("volume", False),
+    "vibration": ("device-mobile-vibration", False),
+    "transparency": ("droplet-half-2", False),
 }
 
 

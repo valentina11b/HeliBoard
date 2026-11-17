@@ -124,7 +124,7 @@ public final class AudioAndHapticFeedbackManager {
         }
         if (mMechanicalFeedback != null && hasVibrator()
                 && (hapticEvent == HapticEvent.KEY_PRESS || hapticEvent == HapticEvent.KEY_REPEAT)
-                && mMechanicalFeedback.vibrate(mVibrator, code)) {
+                && mMechanicalFeedback.vibrate(mVibrator, code, mSettingsValues.mMechanicalVibrationPack)) {
             return;
         }
         // Go ahead with the system default

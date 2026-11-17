@@ -160,6 +160,7 @@ class KeyboardIconsSet private constructor() {
                     ToolbarKey.BACKGROUND_GATHERING -> R.drawable.ic_settings_gesture
                     ToolbarKey.PASSWORDS -> R.drawable.ic_password
                     ToolbarKey.TRANSLATE -> R.drawable.ic_settings_languages
+                    ToolbarKey.QUICK_SETTINGS -> R.drawable.tabler_quick_settings
                 })
             }
         } }
@@ -226,6 +227,7 @@ class KeyboardIconsSet private constructor() {
                     ToolbarKey.BACKGROUND_GATHERING -> R.drawable.ic_settings_gesture
                     ToolbarKey.PASSWORDS -> R.drawable.ic_password
                     ToolbarKey.TRANSLATE -> R.drawable.ic_settings_languages
+                    ToolbarKey.QUICK_SETTINGS -> R.drawable.tabler_quick_settings
                 })
             }
         } }
@@ -292,6 +294,7 @@ class KeyboardIconsSet private constructor() {
                     ToolbarKey.BACKGROUND_GATHERING -> R.drawable.ic_settings_gesture
                     ToolbarKey.PASSWORDS -> R.drawable.ic_password
                     ToolbarKey.TRANSLATE -> R.drawable.ic_settings_languages
+                    ToolbarKey.QUICK_SETTINGS -> R.drawable.tabler_quick_settings
                 })
             }
         } }
@@ -356,6 +359,7 @@ class KeyboardIconsSet private constructor() {
                     ToolbarKey.SPLIT -> R.drawable.tabler_split
                     ToolbarKey.PASSWORDS -> R.drawable.tabler_password
                     ToolbarKey.TRANSLATE -> R.drawable.tabler_translate
+                    ToolbarKey.QUICK_SETTINGS -> R.drawable.tabler_quick_settings
                     ToolbarKey.BACKGROUND_GATHERING -> null
                 }?.let { put(key.name.lowercase(Locale.US), it) }
             }

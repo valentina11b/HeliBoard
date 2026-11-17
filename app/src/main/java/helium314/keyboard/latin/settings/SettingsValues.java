@@ -110,6 +110,7 @@ public class SettingsValues {
     public final boolean mGestureInputEnabled;
     public final boolean mKeyboardSwipeCursor;
     public final String mMechanicalSoundPack;
+    public final String mMechanicalVibrationPack;
     public final boolean mGestureTrailEnabled;
     public final boolean mGestureFloatingPreviewTextEnabled;
     public final boolean mGestureFloatingPreviewDynamicEnabled;
@@ -261,6 +262,7 @@ public class SettingsValues {
         mGestureInputEnabled = JniUtils.sHaveGestureLib && prefs.getBoolean(Settings.PREF_GESTURE_INPUT, Defaults.PREF_GESTURE_INPUT);
         mKeyboardSwipeCursor = prefs.getBoolean(Settings.PREF_KEYBOARD_SWIPE_CURSOR, Defaults.PREF_KEYBOARD_SWIPE_CURSOR);
         mMechanicalSoundPack = prefs.getString(Settings.PREF_MECHANICAL_SOUND_PACK, Defaults.PREF_MECHANICAL_SOUND_PACK);
+        mMechanicalVibrationPack = prefs.getString(Settings.PREF_MECHANICAL_VIBRATION_PACK, Defaults.PREF_MECHANICAL_VIBRATION_PACK);
         mGestureTrailEnabled = prefs.getBoolean(Settings.PREF_GESTURE_PREVIEW_TRAIL, Defaults.PREF_GESTURE_PREVIEW_TRAIL);
         mGestureFloatingPreviewTextEnabled = !mInputAttributes.mDisableGestureFloatingPreviewText
                 && prefs.getBoolean(Settings.PREF_GESTURE_FLOATING_PREVIEW_TEXT, Defaults.PREF_GESTURE_FLOATING_PREVIEW_TEXT);

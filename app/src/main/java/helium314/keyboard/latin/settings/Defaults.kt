@@ -3,7 +3,6 @@ package helium314.keyboard.latin.settings
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import helium314.keyboard.latin.MechanicalFeedback
 import android.os.Build
 import android.util.TypedValue
 import android.view.Gravity
@@ -108,7 +107,8 @@ object Defaults {
     val PREF_SPACE_HORIZONTAL_SWIPE = KeyboardActionListener.SwipeAction.SWITCH_LANGUAGE.name
     const val PREF_KEYBOARD_SWIPE_CURSOR = true
     const val PREF_KEYBOARD_TRANSPARENCY = 0 // percent
-    const val PREF_MECHANICAL_SOUND_PACK = MechanicalFeedback.DEFAULT_PACK
+    const val PREF_MECHANICAL_SOUND_PACK = "classic"
+    const val PREF_MECHANICAL_VIBRATION_PACK = "classic"
     @JvmField
     val PREF_SPACE_VERTICAL_SWIPE = KeyboardActionListener.SwipeAction.NONE.name
     const val PREF_DELETE_SWIPE = 1

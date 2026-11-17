@@ -120,6 +120,7 @@ public final class Settings implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_KEYBOARD_SWIPE_CURSOR = "keyboard_swipe_cursor";
     public static final String PREF_KEYBOARD_TRANSPARENCY = "keyboard_transparency";
     public static final String PREF_MECHANICAL_SOUND_PACK = "mechanical_sound_pack";
+    public static final String PREF_MECHANICAL_VIBRATION_PACK = "mechanical_vibration_pack";
     public static final String PREF_SPACE_VERTICAL_SWIPE = "vertical_space_swipe";
     public static final String PREF_DELETE_SWIPE = "delete_swipe_type";
     public static final String PREF_AUTOSPACE_AFTER_PUNCTUATION = "autospace_after_punctuation";

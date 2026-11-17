@@ -1,0 +1,5 @@
+[popup_keys]
+s š
+z ž
+c č ć
+d đ

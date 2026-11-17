@@ -73,7 +73,7 @@ object FloatingKeyboardUtils {
         val maxX = maxX.coerceAtLeast(0)
         val maxY = maxY.coerceAtLeast(0)
         val width = context.resources.displayMetrics.widthPixels
-        val x = context.prefs().getInt(Settings.PREF_FLOATING_POS_X_PREFIX + width, width / 2)
+        val x = context.prefs().getInt(Settings.PREF_FLOATING_POS_X_PREFIX + width, maxX / 2) // centered at first
         val y = context.prefs().getInt(Settings.PREF_FLOATING_POS_Y_PREFIX + width, context.resources.displayMetrics.heightPixels / 2)
         if (x > maxX || y > maxY)
             savePosition(context, maxX, maxY)

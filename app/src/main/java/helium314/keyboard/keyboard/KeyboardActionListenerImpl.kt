@@ -114,6 +114,7 @@ class KeyboardActionListenerImpl(private val latinIME: LatinIME, private val inp
                 return
             }
             KeyCode.TRANSLATE -> return translate()
+            KeyCode.QUICK_SETTINGS -> return KeyboardSwitcher.getInstance().toggleQuickSettings()
             KeyCode.PASSWORDS -> {
                 latinIME.packageManager.getLaunchIntentForPackage(SAMSUNG_PASS_PACKAGE)
                     ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)?.let { latinIME.startActivity(it) }

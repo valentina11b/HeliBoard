@@ -13,8 +13,8 @@ android {
         applicationId = "rs.valentina11b.keyboard"
         minSdk = 21
         targetSdk = 37
-        versionCode = 4301
-        versionName = "4.3-tastatura1"
+        versionCode = 4302
+        versionName = "4.3-tastatura2"
         ndk {
             abiFilters.clear()
             abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64"))
