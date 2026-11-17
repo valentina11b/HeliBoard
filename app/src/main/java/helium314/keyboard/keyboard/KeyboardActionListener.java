@@ -117,6 +117,8 @@ public interface KeyboardActionListener {
      */
     boolean onHorizontalSpaceSwipe(int steps);
     boolean onVerticalSpaceSwipe(int steps);
+    /** Horizontal swipe starting on a letter key, moves the cursor. */
+    boolean onKeyboardSwipeCursor(int steps);
     void onEndSpaceSwipe();
     void toggleLayout(LayoutDirective.Utility layout, int autoCapsFlags, @Nullable RecapitalizeMode recapitalizeMode);
     void onLongPressAlphaSymbolForNumpad();
@@ -169,6 +171,10 @@ public interface KeyboardActionListener {
         }
         @Override
         public boolean onVerticalSpaceSwipe(int steps) {
+            return false;
+        }
+        @Override
+        public boolean onKeyboardSwipeCursor(int steps) {
             return false;
         }
         @Override

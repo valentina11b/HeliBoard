@@ -14,6 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import helium314.keyboard.keyboard.KeyboardLayoutSet
 import helium314.keyboard.keyboard.KeyboardSwitcher
+import helium314.keyboard.keyboard.KeyboardTheme
 import helium314.keyboard.keyboard.clipboard.RecentScreenshots
 import helium314.keyboard.latin.AudioAndHapticFeedbackManager
 import helium314.keyboard.latin.R
@@ -64,6 +65,9 @@ fun PreferencesScreen(
         Settings.PREF_SOUND_ON,
         if (prefs.getBoolean(Settings.PREF_SOUND_ON, Defaults.PREF_SOUND_ON))
             Settings.PREF_KEYPRESS_SOUND_VOLUME else null,
+        if (prefs.getBoolean(Settings.PREF_SOUND_ON, Defaults.PREF_SOUND_ON)
+            && prefs.getString(Settings.PREF_THEME_STYLE, Defaults.PREF_THEME_STYLE) == KeyboardTheme.STYLE_MECHANICAL)
+            Settings.PREF_MECHANICAL_SOUND_PACK else null,
         Settings.PREF_SAVE_SUBTYPE_PER_APP,
         Settings.PREF_SHOW_EMOJI_DESCRIPTIONS,
         R.string.settings_category_additional_keys,
@@ -238,6 +242,16 @@ fun createPreferencesSettings(context: Context) = listOf(
             range = -1f..100f,
             onValueChanged = { it?.let { AudioAndHapticFeedbackManager.getInstance().vibrate(it.toLong()) } }
         )
+    },
+    Setting(context, Settings.PREF_MECHANICAL_SOUND_PACK, R.string.mechanical_sound_pack) {
+        val items = listOf(
+            stringResource(R.string.sound_pack_classic) to "classic",
+            stringResource(R.string.sound_pack_thock) to "thock",
+            stringResource(R.string.sound_pack_clicky) to "clicky",
+            stringResource(R.string.sound_pack_typewriter) to "typewriter",
+            stringResource(R.string.sound_pack_soft) to "soft",
+        )
+        ListPreference(it, items, Defaults.PREF_MECHANICAL_SOUND_PACK)
     },
     Setting(context, Settings.PREF_KEYPRESS_SOUND_VOLUME, R.string.prefs_keypress_sound_volume_settings) { setting ->
         val audioManager = LocalContext.current.getSystemService(Context.AUDIO_SERVICE) as AudioManager

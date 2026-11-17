@@ -928,7 +928,20 @@ New dictionary:
     <!-- Label for bin (delete) key, currently used only for showing the icon name -->
     <string name="label_bin" tools:keep="@string/label_bin">Bin</string>
     <!-- Title of the setting for horizontal spacebar swipe gesture -->
+    <!-- Option to choose the key sounds of the Mechanical style -->
+    <string name="mechanical_sound_pack">Mechanical sound pack</string>
+    <string name="sound_pack_classic">Classic</string>
+    <string name="sound_pack_thock">Thock (deep)</string>
+    <string name="sound_pack_clicky">Clicky</string>
+    <string name="sound_pack_typewriter">Typewriter</string>
+    <string name="sound_pack_soft">Soft</string>
+    <!-- Option to make the whole keyboard see-through -->
+    <string name="prefs_keyboard_transparency">Keyboard transparency</string>
     <string name="show_horizontal_space_swipe">Horizontal spacebar swipe gesture</string>
+    <!-- Option to move the cursor by swiping sideways across the letter keys -->
+    <string name="keyboard_swipe_cursor">Swipe on keyboard to move cursor</string>
+    <!-- Description for keyboard_swipe_cursor -->
+    <string name="keyboard_swipe_cursor_summary">Slide sideways across the letters. Not used while gesture typing is on.</string>
     <!-- Title of the setting for vertical spacebar swipe gesture -->
     <string name="show_vertical_space_swipe">Vertical spacebar swipe gesture</string>
     <!-- Option for no action when (currently only used for swiping the spacebar) -->
@@ -1282,6 +1295,7 @@ New dictionary:
      string will probably be removed once data gathering is finished (end of 2026 latest) -->
     <string name="background_gathering" tools:keep="@string/background_gathering">Background data gathering</string>
     <string name="passwords" tools:keep="@string/passwords">Passwords</string>
+    <string name="translate" tools:keep="@string/translate">Translate</string>
     <!-- Review screen menu entry to display actively gathered data
      string will probably be removed once data gathering is finished (end of 2026 latest) -->
     <string name="gesture_data_show_active">Show actively gathered data</string>

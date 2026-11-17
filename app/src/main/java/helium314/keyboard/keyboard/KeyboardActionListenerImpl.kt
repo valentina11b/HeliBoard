@@ -113,6 +113,7 @@ class KeyboardActionListenerImpl(private val latinIME: LatinIME, private val inp
                 latinIME.setGestureDataGatheringMode(latinIME.currentInputEditorInfo, false)
                 return
             }
+            KeyCode.TRANSLATE -> return translate()
             KeyCode.PASSWORDS -> {
                 latinIME.packageManager.getLaunchIntentForPackage(SAMSUNG_PASS_PACKAGE)
                     ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)?.let { latinIME.startActivity(it) }
@@ -246,6 +247,25 @@ class KeyboardActionListenerImpl(private val latinIME: LatinIME, private val inp
         }
         else -> false
     }
+
+    override fun onKeyboardSwipeCursor(steps: Int) = onMoveCursorHorizontally(steps)
+
+    /** Shows the selected text, or the whole field, in Google Translate's popup over the current app. */
+    private fun translate() {
+        val selected = connection.getSelectedText(0)
+        val text = if (!selected.isNullOrEmpty()) selected
+            else "${connection.getTextBeforeCursor(TRANSLATE_MAX_CHARS, 0) ?: ""}${connection.getTextAfterCursor(TRANSLATE_MAX_CHARS, 0) ?: ""}"
+        if (text.isBlank()) return
+        val pm = latinIME.packageManager
+        val popup = Intent(Intent.ACTION_PROCESS_TEXT).setType("text/plain").setPackage(TRANSLATE_PACKAGE)
+            .putExtra(Intent.EXTRA_PROCESS_TEXT, text.toString()).putExtra(Intent.EXTRA_PROCESS_TEXT_READONLY, true)
+        val app = Intent(Intent.ACTION_SEND).setType("text/plain").setPackage(TRANSLATE_PACKAGE)
+            .putExtra(Intent.EXTRA_TEXT, text.toString())
+        val store = Intent(Intent.ACTION_VIEW, android.net.Uri.parse("market://details?id=$TRANSLATE_PACKAGE"))
+        val intent = listOf(popup, app, store).firstOrNull { it.resolveActivity(pm) != null } ?: return
+        latinIME.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    }
+
 
     override fun onEndSpaceSwipe() {
         initialSubtype = null
@@ -523,6 +543,8 @@ class KeyboardActionListenerImpl(private val latinIME: LatinIME, private val inp
 
     companion object {
         private const val SAMSUNG_PASS_PACKAGE = "com.samsung.android.samsungpass"
+        private const val TRANSLATE_PACKAGE = "com.google.android.apps.translate"
+        private const val TRANSLATE_MAX_CHARS = 2000
         private enum class MetaPressState {
             UNSET, // default state, not active
             SET, // enabled without onPressKey (e.g. in popup)

@@ -117,6 +117,9 @@ public final class Settings implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_EMOJI_KEY_FIT = "emoji_key_fit";
     public static final String PREF_EMOJI_SKIN_TONE = "emoji_skin_tone";
     public static final String PREF_SPACE_HORIZONTAL_SWIPE = "horizontal_space_swipe";
+    public static final String PREF_KEYBOARD_SWIPE_CURSOR = "keyboard_swipe_cursor";
+    public static final String PREF_KEYBOARD_TRANSPARENCY = "keyboard_transparency";
+    public static final String PREF_MECHANICAL_SOUND_PACK = "mechanical_sound_pack";
     public static final String PREF_SPACE_VERTICAL_SWIPE = "vertical_space_swipe";
     public static final String PREF_DELETE_SWIPE = "delete_swipe_type";
     public static final String PREF_AUTOSPACE_AFTER_PUNCTUATION = "autospace_after_punctuation";

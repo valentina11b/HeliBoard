@@ -139,12 +139,13 @@ public final class AudioAndHapticFeedbackManager {
         mSettingsValues = settingsValues;
         mSoundOn = reevaluateIfSoundIsOn();
         final boolean mechanical = KeyboardTheme.STYLE_MECHANICAL.equals(settingsValues.mColors.getThemeStyle());
-        if (mechanical && mMechanicalFeedback == null && mContext != null) {
-            mMechanicalFeedback = new MechanicalFeedback(mContext);
-        } else if (!mechanical && mMechanicalFeedback != null) {
+        final String pack = settingsValues.mMechanicalSoundPack;
+        if (mMechanicalFeedback != null && (!mechanical || !mMechanicalFeedback.getPack().equals(pack))) {
             mMechanicalFeedback.release();
             mMechanicalFeedback = null;
         }
+        if (mechanical && mMechanicalFeedback == null && mContext != null)
+            mMechanicalFeedback = new MechanicalFeedback(mContext, pack);
     }
 
     public void onRingerModeChanged(boolean doNotDisturb) {

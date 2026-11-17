@@ -82,6 +82,7 @@ fun AppearanceScreen(
         if (KeyboardTheme.hasKeyBorders(prefs))
             Settings.PREF_KEY_GAP_SCALE_PREFIX else null,
         Settings.PREF_KEYBOARD_HEIGHT_SCALE_PREFIX,
+        Settings.PREF_KEYBOARD_TRANSPARENCY,
         Settings.PREF_BOTTOM_ROW_SCALE_PREFIX,
         Settings.PREF_BOTTOM_PADDING_SCALE_PREFIX,
         Settings.PREF_SIDE_PADDING_SCALE_PREFIX,
@@ -262,6 +263,15 @@ fun createAppearanceSettings(context: Context) = listOf(
             defaults = Defaults.PREF_KEY_GAP_SCALE,
             range = 0f..2.5f,
             description = { "${(100 * it).toInt()}%" }
+        ) { KeyboardSwitcher.getInstance().setThemeNeedsReload() }
+    },
+    Setting(context, Settings.PREF_KEYBOARD_TRANSPARENCY, R.string.prefs_keyboard_transparency) { setting ->
+        SliderPreference(
+            name = setting.title,
+            key = setting.key,
+            default = Defaults.PREF_KEYBOARD_TRANSPARENCY,
+            description = { "$it%" },
+            range = 0f..80f,
         ) { KeyboardSwitcher.getInstance().setThemeNeedsReload() }
     },
     Setting(context, Settings.PREF_KEYBOARD_HEIGHT_SCALE_PREFIX, R.string.prefs_keyboard_height_scale) { setting ->

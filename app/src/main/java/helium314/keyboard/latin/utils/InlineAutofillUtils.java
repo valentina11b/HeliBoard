@@ -42,6 +42,7 @@ import androidx.autofill.inline.v1.InlineSuggestionUi.Style;
 import java.util.ArrayList;
 import java.util.List;
 
+import helium314.keyboard.keyboard.KeyboardTheme;
 import helium314.keyboard.latin.R;
 import helium314.keyboard.latin.common.ColorType;
 import helium314.keyboard.latin.common.Colors;
@@ -54,7 +55,9 @@ public class InlineAutofillUtils {
     public static InlineSuggestionsRequest createInlineSuggestionRequest(final Context context) {
         final Colors colors = Settings.getValues().mColors;
         final int chipBgDrawableId = androidx.autofill.R.drawable.autofill_inline_suggestion_chip_background;
-        final int chipBgColor = colors.get(ColorType.AUTOFILL_BACKGROUND_CHIP);
+        // mechanical keycaps: suggestion chips take the key color, so they look like keys
+        final boolean mechanical = colors.getThemeStyle().equals(KeyboardTheme.STYLE_MECHANICAL);
+        final int chipBgColor = colors.get(mechanical ? ColorType.KEY_BACKGROUND : ColorType.AUTOFILL_BACKGROUND_CHIP);
         final int chipTextColor = colors.get(ColorType.KEY_TEXT);
         final int chipTextHintColor = colors.get(ColorType.KEY_HINT_TEXT);
 
@@ -73,7 +76,7 @@ public class InlineAutofillUtils {
                 .setTitleStyle(
                         new TextViewStyle.Builder()
                                 .setTextColor(chipTextColor)
-                                .setTextSize(12)
+                                .setTextSize(mechanical ? 14 : 12)
                                 .build())
                 .setSubtitleStyle(
                         new TextViewStyle.Builder()

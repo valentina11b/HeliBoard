@@ -63,6 +63,7 @@ fun AdvancedSettingsScreen(
         Settings.PREF_KEY_LONGPRESS_TIMEOUT,
         Settings.PREF_SPACE_HORIZONTAL_SWIPE,
         Settings.PREF_SPACE_VERTICAL_SWIPE,
+        Settings.PREF_KEYBOARD_SWIPE_CURSOR,
         if (Settings.readHorizontalSpaceSwipe(prefs) == KeyboardActionListener.SwipeAction.SWITCH_LANGUAGE
             || Settings.readVerticalSpaceSwipe(prefs) == KeyboardActionListener.SwipeAction.SWITCH_LANGUAGE)
             Settings.PREF_LANGUAGE_SWIPE_DISTANCE else null,
@@ -123,6 +124,9 @@ fun createAdvancedSettings(context: Context) = listOf(
             stringResource(R.string.action_none) to KeyboardActionListener.SwipeAction.NONE.name,
         )
         ListPreference(it, items, Defaults.PREF_SPACE_HORIZONTAL_SWIPE)
+    },
+    Setting(context, Settings.PREF_KEYBOARD_SWIPE_CURSOR, R.string.keyboard_swipe_cursor, R.string.keyboard_swipe_cursor_summary) {
+        SwitchPreference(it, Defaults.PREF_KEYBOARD_SWIPE_CURSOR)
     },
     Setting(context, Settings.PREF_SPACE_VERTICAL_SWIPE, R.string.show_vertical_space_swipe) {
         val items = listOf(

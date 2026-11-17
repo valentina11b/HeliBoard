@@ -19,10 +19,12 @@ import androidx.core.view.ViewKt;
 import helium314.keyboard.accessibility.AccessibilityUtils;
 import helium314.keyboard.keyboard.MainKeyboardView;
 import helium314.keyboard.latin.common.ColorType;
+import helium314.keyboard.latin.settings.Defaults;
 import helium314.keyboard.latin.settings.Settings;
 import helium314.keyboard.latin.suggestions.MoreSuggestionsView;
 import helium314.keyboard.latin.suggestions.SuggestionStripView;
 import helium314.keyboard.latin.utils.FloatingKeyboardUtils;
+import helium314.keyboard.latin.utils.KtxKt;
 import kotlin.Unit;
 
 
@@ -108,6 +110,8 @@ public final class InputView extends FrameLayout {
 
     private Unit onNextLayout(View v) {
         Settings.getValues().mColors.setBackground(findViewById(R.id.main_keyboard_frame), ColorType.MAIN_BACKGROUND);
+        // see-through keyboard, like Samsung's transparency setting
+        setAlpha(1f - KtxKt.prefs(getContext()).getInt(Settings.PREF_KEYBOARD_TRANSPARENCY, Defaults.PREF_KEYBOARD_TRANSPARENCY) / 100f);
 
         // Work around inset application being unreliable
         requestApplyInsets();

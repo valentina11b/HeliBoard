@@ -769,7 +769,8 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
             case Constants.CODE_SPACE -> sv.mSpaceSwipeHorizontal != KeyboardActionListener.SwipeAction.NONE
                     || sv.mSpaceSwipeVertical != KeyboardActionListener.SwipeAction.NONE;
             case KeyCode.DELETE -> sv.mDeleteSwipe > 0;
-            default -> false;
+            // swiping across letters moves the cursor, unless it's used for gesture typing
+            default -> sv.mKeyboardSwipeCursor && !sv.mGestureInputEnabled && code > 0 && Character.isLetter(code);
         };
     }
 
@@ -945,7 +946,9 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         // see https://github.com/openboard-team/openboard/issues/411
         // delete swipe is excluded because it already has a distance threshold,
         // see https://github.com/openboard-team/openboard/pull/566
-        if (code != KeyCode.DELETE && SystemClock.elapsedRealtime() < mStartTime + fastTypingTimeout && sTypingTimeRecorder.isInFastTyping(eventTime))
+        // letter cursor swipes are excluded too: they must start before the finger reaches the next key
+        final boolean isLetter = code > 0 && Character.isLetter(code);
+        if (code != KeyCode.DELETE && !isLetter && SystemClock.elapsedRealtime() < mStartTime + fastTypingTimeout && sTypingTimeRecorder.isInFastTyping(eventTime))
             return;
         if (code == Constants.CODE_SPACE) {
             int dX = x - mStartX;
@@ -978,6 +981,21 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
                     mStartX += stepsX * sPointerStep;
                 }
             }
+        } else if (isLetter) {
+            // cursor control: only start after a clear horizontal move, so normal taps still type
+            final int dX = x - mStartX;
+            if (!mInHorizontalSwipe && (abs(dX) < sPointerStep || abs(dX) < abs(y - mStartY)))
+                return;
+            final int steps = dX / sPointerStep;
+            if (steps != 0) {
+                if (!mInHorizontalSwipe) {
+                    sTimerProxy.cancelKeyTimersOf(this);
+                    sDrawingProxy.onKeyReleased(mCurrentKey, true);
+                    mInHorizontalSwipe = true;
+                }
+                if (sListener.onKeyboardSwipeCursor(steps))
+                    mStartX += steps * sPointerStep;
+            }
         } else if (code == KeyCode.DELETE) {
             // Delete slider
             int steps = (x - mStartX) / (sPointerStep * sv.mDeleteSwipe); // half speed for word delete
@@ -998,7 +1016,10 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         // todo (later): move key swipe stuff to KeyboardActionListener (and finally extend it)
         if (mKeySwipeAllowed) {
             onKeySwipe(oldKey.getCode(), x, y, eventTime);
-            return;
+            // letter keys behave normally until a cursor swipe has started
+            final int code = oldKey.getCode();
+            if (!(code > 0 && Character.isLetter(code)) || mInHorizontalSwipe)
+                return;
         }
 
         final Key newKey = onMoveKey(x, y);
