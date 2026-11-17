@@ -34,8 +34,8 @@ internal class EmojiLayoutParams(res: Resources) {
         val rowCount = KeyboardParams.DEFAULT_KEYBOARD_ROWS + if (sv.mShowsNumberRow) 1 else 0
         bottomRowKeyboardHeight = (defaultKeyboardHeight - bottomPadding - topPadding) / rowCount - keyVerticalGap / 2
 
-        val pageIdHeight = res.getDimension(R.dimen.config_emoji_category_page_id_height)
-        emojiCategoryPageIdViewHeight = pageIdHeight.toInt()
+        // the scroll position line under the emojis was confusing next to the selected category icon, so it's hidden
+        emojiCategoryPageIdViewHeight = 0
         val offset = 1.25f * res.displayMetrics.density * sv.mKeyboardHeightScale // like ClipboardLayoutParams
         val emojiListHeight = defaultKeyboardHeight - bottomRowKeyboardHeight - bottomPadding + (offset.toInt())
         emojiListBottomMargin = 0
@@ -53,5 +53,6 @@ internal class EmojiLayoutParams(res: Resources) {
         val lp = v.layoutParams as LinearLayout.LayoutParams
         lp.height = emojiCategoryPageIdViewHeight
         v.layoutParams = lp
+        v.visibility = View.GONE
     }
 }

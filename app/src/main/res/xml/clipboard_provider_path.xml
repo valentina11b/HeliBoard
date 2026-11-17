@@ -3,4 +3,7 @@
     <files-path
         name="clipboard_data"
         path="clipboard/"/>
+    <files-path
+        name="screenshots"
+        path="screenshots/"/>
 </paths>

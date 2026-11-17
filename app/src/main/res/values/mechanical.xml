@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-only -->
+<resources>
+    <!-- Keycap shades; multiplied with the theme's key colors. -->
+    <color name="mechanical_keycap_side_top">#A6A6A6</color>
+    <color name="mechanical_keycap_side_bottom">#8A8A8A</color>
+    <color name="mechanical_keycap_face_top">#FFFFFF</color>
+    <color name="mechanical_keycap_face_bottom">#E8E8E8</color>
+    <color name="mechanical_keycap_face_top_pressed">#EDEDED</color>
+    <color name="mechanical_keycap_face_bottom_pressed">#DADADA</color>
+
+    <dimen name="mechanical_keycap_corner">8dp</dimen>
+    <dimen name="mechanical_keycap_face_corner">5dp</dimen>
+    <dimen name="mechanical_keycap_side">2dp</dimen>
+    <dimen name="mechanical_keycap_top">2dp</dimen>
+    <!-- tall front wall below the face -->
+    <dimen name="mechanical_keycap_bottom">14dp</dimen>
+    <!-- Pressed: face moves down by travel (top + travel, bottom - travel). -->
+    <dimen name="mechanical_keycap_travel">4dp</dimen>
+    <dimen name="mechanical_keycap_top_pressed">6dp</dimen>
+    <dimen name="mechanical_keycap_bottom_pressed">10dp</dimen>
+    <!-- Labels are centered on the face, not the key: (top - bottom) / 2. -->
+    <dimen name="mechanical_label_offset">-6dp</dimen>
+    <!-- keeps corner hints on the face: side + a little margin -->
+    <dimen name="mechanical_hint_padding">9dp</dimen>
+    <!-- contact shadow under exact-color keycaps, and the lit rim around their face -->
+    <dimen name="mechanical_keycap_shadow">1.5dp</dimen>
+    <dimen name="mechanical_keycap_rim">1dp</dimen>
+    <!-- extra space between exact-color keycaps -->
+    <dimen name="mechanical_keycap_gap">0.5dp</dimen>
+    <!-- blur of the shadow the raised face casts on the keycap body -->
+    <dimen name="mechanical_keycap_face_shadow">3dp</dimen>
+    <!-- moves corner hints down from the key top onto the face -->
+    <dimen name="mechanical_hint_top">6dp</dimen>
+    <!-- smaller bold capitals like on keycap legends -->
+    <fraction name="mechanical_key_letter_ratio">36%</fraction>
+    <fraction name="mechanical_key_hint_letter_ratio">18%</fraction>
+</resources>

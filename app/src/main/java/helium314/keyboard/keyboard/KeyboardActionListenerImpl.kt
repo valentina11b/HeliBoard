@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 package helium314.keyboard.keyboard
 
+import android.content.Intent
 import android.text.InputType
 import android.util.SparseArray
 import android.view.KeyEvent
@@ -110,6 +111,11 @@ class KeyboardActionListenerImpl(private val latinIME: LatinIME, private val inp
                 settings.toggleAlwaysIncognitoMode()
                 BackgroundGatheringCache.clear()
                 latinIME.setGestureDataGatheringMode(latinIME.currentInputEditorInfo, false)
+                return
+            }
+            KeyCode.PASSWORDS -> {
+                latinIME.packageManager.getLaunchIntentForPackage(SAMSUNG_PASS_PACKAGE)
+                    ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)?.let { latinIME.startActivity(it) }
                 return
             }
             KeyCode.BACKGROUND_GATHERING -> {
@@ -516,6 +522,7 @@ class KeyboardActionListenerImpl(private val latinIME: LatinIME, private val inp
     }
 
     companion object {
+        private const val SAMSUNG_PASS_PACKAGE = "com.samsung.android.samsungpass"
         private enum class MetaPressState {
             UNSET, // default state, not active
             SET, // enabled without onPressKey (e.g. in popup)

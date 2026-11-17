@@ -9,10 +9,19 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.database.ContentObserver
+import android.graphics.Outline
+import android.os.Handler
+import android.os.Looper
+import android.provider.MediaStore
+import android.view.ViewOutlineProvider
+import android.widget.HorizontalScrollView
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import androidx.core.view.ViewCompat
 import helium314.keyboard.event.HapticEvent
 import helium314.keyboard.keyboard.KeyboardActionListener
 import helium314.keyboard.keyboard.KeyboardElement
@@ -38,6 +47,11 @@ import helium314.keyboard.latin.utils.onClickToolbarKey
 import helium314.keyboard.latin.utils.onLongClickToolbarKey
 import helium314.keyboard.latin.utils.prefs
 import helium314.keyboard.latin.utils.setToolbarButtonsActivatedStateOnPrefChange
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @SuppressLint("CustomViewStyleable")
 class ClipboardHistoryView @JvmOverloads constructor(
@@ -55,6 +69,15 @@ class ClipboardHistoryView @JvmOverloads constructor(
     private lateinit var clipboardRecyclerView: ClipboardHistoryRecyclerView
     private lateinit var placeholderView: TextView
     private val toolbarKeys = mutableListOf<ImageButton>()
+    private var screenshotJob: Job? = null
+    private val screenshotObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
+        override fun onChange(selfChange: Boolean) {
+            // a new screenshot fires several changes, so refresh once they settle
+            removeCallbacks(refreshScreenshots)
+            postDelayed(refreshScreenshots, 500)
+        }
+    }
+    private val refreshScreenshots = Runnable { if (isShown) setupScreenshotRow() }
     private lateinit var clipboardAdapter: ClipboardAdapter
 
     lateinit var keyboardActionListener: KeyboardActionListener
@@ -73,6 +96,10 @@ class ClipboardHistoryView @JvmOverloads constructor(
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        // fitsSystemWindows doesn't give this view the nav bar padding on some devices, so set it from the root insets
+        ViewCompat.getRootWindowInsets(this)?.systemWindowInsetBottom?.let {
+            if (paddingBottom != it) setPadding(paddingLeft, paddingTop, paddingRight, it)
+        }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         val res = context.resources
         // The main keyboard expands to the entire this {@link KeyboardView}.
@@ -184,11 +211,72 @@ class ClipboardHistoryView @JvmOverloads constructor(
             setPadding(leftPadding, paddingTop, rightPadding, paddingBottom)
         }
 
+        setupScreenshotRow()
+
         // absurd workaround so Android sets the correct color from stateList (depending on "activated")
         toolbarKeys.forEach { it.isEnabled = false; it.isEnabled = true }
     }
 
+    private fun setupScreenshotRow() {
+        val row = findViewById<HorizontalScrollView>(R.id.screenshot_row)
+        val container = findViewById<LinearLayout>(R.id.screenshot_container)
+        screenshotJob?.cancel()
+        container.removeAllViews()
+        ClipboardLayoutParams(context).setListProperties(clipboardRecyclerView) // reset height before splitting it
+        context.contentResolver.unregisterContentObserver(screenshotObserver)
+        if (!RecentScreenshots.isEnabled(context)) {
+            row.visibility = GONE
+            return
+        }
+        // the row takes its height from the list, so the whole view keeps its size
+        val rowHeight = clipboardRecyclerView.layoutParams.height * 3 / 10
+        row.layoutParams = row.layoutParams.apply { height = rowHeight }
+        clipboardRecyclerView.layoutParams = clipboardRecyclerView.layoutParams.apply { height -= rowHeight }
+        row.visibility = VISIBLE
+        row.scrollTo(0, 0)
+        context.contentResolver.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, screenshotObserver)
+        val gap = (resources.displayMetrics.density * 4).toInt()
+        val corner = resources.displayMetrics.density * 6
+        screenshotJob = CoroutineScope(Dispatchers.Main).launch {
+            val shots = withContext(Dispatchers.IO) {
+                RecentScreenshots.query(context).map { it to RecentScreenshots.loadThumbnail(context, it, rowHeight) }
+            }
+            shots.forEach { (shot, thumbnail) ->
+                if (thumbnail == null) return@forEach
+                container.addView(ImageView(context).apply {
+                    setImageBitmap(thumbnail)
+                    scaleType = ImageView.ScaleType.CENTER_CROP
+                    contentDescription = context.getString(R.string.clipboard_show_screenshots)
+                    clipToOutline = true
+                    outlineProvider = object : ViewOutlineProvider() {
+                        override fun getOutline(view: View, outline: Outline) =
+                            outline.setRoundRect(0, 0, view.width, view.height, corner)
+                    }
+                    setOnClickListener { pasteScreenshot(it, shot) }
+                }, LinearLayout.LayoutParams(rowHeight * 3 / 4, LayoutParams.MATCH_PARENT).apply {
+                    setMargins(gap, gap, 0, gap)
+                })
+            }
+            if (container.childCount == 0) {
+                row.visibility = GONE
+                clipboardRecyclerView.layoutParams = clipboardRecyclerView.layoutParams.apply { height += rowHeight }
+            }
+        }
+    }
+
+    private fun pasteScreenshot(view: View, shot: RecentScreenshots.Screenshot) {
+        keyboardActionListener.onPressKey(KeyCode.NOT_SPECIFIED, 0, 1, HapticEvent.KEY_PRESS)
+        CoroutineScope(Dispatchers.Main).launch {
+            val info = withContext(Dispatchers.IO) { RecentScreenshots.contentInfo(context, shot) }
+            if (info != null) keyboardActionListener.onContent(info)
+            keyboardActionListener.onReleaseKey(KeyCode.NOT_SPECIFIED, false)
+        }
+    }
+
     fun stopClipboardHistory() {
+        screenshotJob?.cancel()
+        removeCallbacks(refreshScreenshots)
+        context.contentResolver.unregisterContentObserver(screenshotObserver)
         if (!this::clipboardAdapter.isInitialized) return
         clipboardRecyclerView.adapter = null
         clipboardHistoryManager.setHistoryChangeListener(null)

@@ -3,7 +3,10 @@ package helium314.keyboard.settings.screens
 
 import android.content.Context
 import android.media.AudioManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.Surface
+import androidx.core.content.edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
@@ -11,6 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import helium314.keyboard.keyboard.KeyboardLayoutSet
 import helium314.keyboard.keyboard.KeyboardSwitcher
+import helium314.keyboard.keyboard.clipboard.RecentScreenshots
 import helium314.keyboard.latin.AudioAndHapticFeedbackManager
 import helium314.keyboard.latin.R
 import helium314.keyboard.latin.database.ClipboardDao
@@ -83,6 +87,7 @@ fun PreferencesScreen(
         if (clipboardHistoryEnabled) Settings.PREF_CLIPBOARD_USE_FILES else null,
         if (clipboardHistoryEnabled && prefs.getBoolean(Settings.PREF_CLIPBOARD_USE_FILES, Defaults.PREF_CLIPBOARD_USE_FILES))
             Settings.PREF_CLIPBOARD_FILES_SIZE_LIMIT else null,
+        if (clipboardHistoryEnabled && RecentScreenshots.isSupported()) Settings.PREF_CLIPBOARD_SHOW_SCREENSHOTS else null,
     )
     SearchSettingsScreen(
         onClickBack = onClickBack,
@@ -195,6 +200,18 @@ fun createPreferencesSettings(context: Context) = listOf(
         SwitchPreference(it, Defaults.PREF_CLIPBOARD_USE_FILES) {
             ClipboardDao.getInstance(ctx)?.cleanupFiles(ctx.prefs())
         }
+    },
+    Setting(context, Settings.PREF_CLIPBOARD_SHOW_SCREENSHOTS, R.string.clipboard_show_screenshots,
+        R.string.clipboard_show_screenshots_summary) { setting ->
+        val ctx = LocalContext.current
+        // the switch only turns on once the photo permission is granted
+        val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+            if (result.values.any { it }) ctx.prefs().edit { putBoolean(setting.key, true) }
+        }
+        SwitchPreference(setting, Defaults.PREF_CLIPBOARD_SHOW_SCREENSHOTS, allowCheckedChange = { checked ->
+            if (!checked || RecentScreenshots.hasPermission(ctx)) true
+            else { launcher.launch(RecentScreenshots.permissions()); false }
+        })
     },
     Setting(context, Settings.PREF_CLIPBOARD_FILES_SIZE_LIMIT, R.string.clipboard_history_max_file_size) { setting ->
         val ctx = LocalContext.current

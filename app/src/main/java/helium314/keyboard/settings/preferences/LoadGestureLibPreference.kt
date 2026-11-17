@@ -3,9 +3,11 @@ package helium314.keyboard.settings.preferences
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -27,6 +29,13 @@ import java.io.FileOutputStream
 import java.io.IOException
 import androidx.core.content.edit
 import helium314.keyboard.latin.utils.IntentUtils
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+
+// library files matching JniUtils checksums, pinned to the commit linked in HeliBoard's README
+private const val LIBRARY_DOWNLOAD_URL = "https://raw.githubusercontent.com/erkserkserks/openboard/" +
+    "46fdf2b550035ca69299ce312fa158e7ade36967/app/src/main/jniLibs/%s/libjni_latinimegoogle.so"
 
 @SuppressLint("ApplySharedPref")
 @Composable
@@ -71,6 +80,24 @@ fun LoadGestureLibPreference(setting: Setting) {
             // should inform user, but probably the issues will only come when reading the library
         }
     }
+    fun openFilePicker() {
+        val intent = IntentUtils.getResolvableTypeIntent(ctx, "application/octet-stream")
+            .setAction(Intent.ACTION_OPEN_DOCUMENT)
+        launcher.launch(intent)
+    }
+    // after downloading in the browser, open the file picker as soon as the user is back
+    var awaitingDownload by rememberSaveable { mutableStateOf(false) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME && awaitingDownload) {
+                awaitingDownload = false
+                openFilePicker()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
     Preference(
         name = setting.title,
         onClick = { showDialog = true }
@@ -80,18 +107,23 @@ fun LoadGestureLibPreference(setting: Setting) {
             onDismissRequest = { showDialog = false },
             onConfirmed = {
                 showDialog = false
-                val intent = IntentUtils.getResolvableTypeIntent(ctx, "application/octet-stream")
-                    .setAction(Intent.ACTION_OPEN_DOCUMENT)
-                launcher.launch(intent)
+                openFilePicker()
             },
             confirmButtonText = stringResource(R.string.load_gesture_library_button_load),
             title = { Text(stringResource(R.string.load_gesture_library)) },
             content = { Text(stringResource(R.string.load_gesture_library_message, abi)) },
-            neutralButtonText = if (libFile.exists()) stringResource(R.string.load_gesture_library_button_delete) else null,
+            neutralButtonText = stringResource(if (libFile.exists()) R.string.load_gesture_library_button_delete
+                else R.string.load_gesture_library_button_download),
             onNeutral = {
-                libFile.delete()
-                prefs.edit(commit = true) { remove(Settings.PREF_LIBRARY_CHECKSUM) }
-                Runtime.getRuntime().exit(0)
+                if (!libFile.exists()) {
+                    showDialog = false
+                    awaitingDownload = true
+                    ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(LIBRARY_DOWNLOAD_URL.format(abi))))
+                } else {
+                    libFile.delete()
+                    prefs.edit(commit = true) { remove(Settings.PREF_LIBRARY_CHECKSUM) }
+                    Runtime.getRuntime().exit(0)
+                }
             }
         )
     }

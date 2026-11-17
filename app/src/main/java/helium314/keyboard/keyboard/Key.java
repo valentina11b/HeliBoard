@@ -843,6 +843,11 @@ public class Key implements Comparable<Key> {
         mPressed = false;
     }
 
+    /** Whether the background is drawn in pressed state, see {@link #selectBackgroundDrawable}. */
+    public boolean showsPressedBackground() {
+        return mPressed || mLocked;
+    }
+
     public final boolean isEnabled() {
         return mEnabled;
     }

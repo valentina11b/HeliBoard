@@ -43,10 +43,23 @@ private constructor(val themeId: Int, @JvmField val mStyleId: Int) {
     }
 
     companion object {
+        // measured from the reference keyboard: highlight, face left/right, side left/right, wall top/bottom
+        private val TEAL_KEYCAPS = mapOf(
+            ColorType.KEY_BACKGROUND to KeycapColors(Color.rgb(65, 85, 92), Color.rgb(42, 65, 73), Color.rgb(28, 51, 59),
+                Color.rgb(34, 54, 62), Color.rgb(19, 41, 46), Color.rgb(23, 48, 55), Color.rgb(16, 33, 41)),
+            ColorType.SPACE_BAR_BACKGROUND to KeycapColors(Color.rgb(47, 70, 79), Color.rgb(41, 64, 72), Color.rgb(29, 52, 60),
+                Color.rgb(34, 54, 62), Color.rgb(19, 42, 50), Color.rgb(21, 44, 52), Color.rgb(15, 33, 41)),
+            ColorType.FUNCTIONAL_KEY_BACKGROUND to KeycapColors(Color.rgb(51, 100, 106), Color.rgb(19, 79, 85), Color.rgb(9, 66, 73),
+                Color.rgb(17, 71, 79), Color.rgb(1, 50, 55), Color.rgb(0, 55, 62), Color.rgb(0, 44, 50)),
+            ColorType.ACTION_KEY_BACKGROUND to KeycapColors(Color.rgb(248, 164, 91), Color.rgb(249, 154, 66), Color.rgb(231, 138, 52),
+                Color.rgb(233, 141, 59), Color.rgb(210, 119, 42), Color.rgb(217, 125, 42), Color.rgb(182, 107, 37)),
+        )
+
         // old themes, now called styles
         const val STYLE_MATERIAL = "Material"
         const val STYLE_HOLO = "Holo"
         const val STYLE_ROUNDED = "Rounded"
+        const val STYLE_MECHANICAL = "Mechanical"
 
         // new themes that are just colors
         const val THEME_LIGHT = "light"
@@ -65,6 +78,7 @@ private constructor(val themeId: Int, @JvmField val mStyleId: Int) {
         const val THEME_PINK = "pink"
         const val THEME_SAND = "sand"
         const val THEME_VIOLETTE = "violette"
+        const val THEME_TEAL = "teal"
         fun getAvailableDefaultColors(prefs: SharedPreferences, isNight: Boolean) = listOfNotNull(
             if (!isNight) THEME_LIGHT else null, THEME_DARK,
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) THEME_DYNAMIC else null,
@@ -79,10 +93,11 @@ private constructor(val themeId: Int, @JvmField val mStyleId: Int) {
             if (!isNight) THEME_INDIGO else null,
             if (!isNight) THEME_PINK else null,
             THEME_OCEAN,
+            THEME_TEAL,
             if (!isNight) THEME_SAND else null,
             THEME_VIOLETTE
         )
-        val STYLES = arrayOf(STYLE_MATERIAL, STYLE_HOLO, STYLE_ROUNDED)
+        val STYLES = arrayOf(STYLE_MATERIAL, STYLE_HOLO, STYLE_ROUNDED, STYLE_MECHANICAL)
 
         // These should be aligned with Keyboard.themeId and Keyboard.Case.keyboardTheme
         // attributes' values in attrs.xml.
@@ -91,6 +106,7 @@ private constructor(val themeId: Int, @JvmField val mStyleId: Int) {
         private const val THEME_ID_LXX_BASE_BORDER = 2
         private const val THEME_ID_ROUNDED_BASE = 3
         private const val THEME_ID_ROUNDED_BASE_BORDER = 4
+        private const val THEME_ID_MECHANICAL = 5
         private const val DEFAULT_THEME_ID = THEME_ID_LXX_BASE
 
         private val KEYBOARD_THEMES = arrayOf(
@@ -98,7 +114,8 @@ private constructor(val themeId: Int, @JvmField val mStyleId: Int) {
             KeyboardTheme(THEME_ID_LXX_BASE, R.style.KeyboardTheme_LXX_Base),
             KeyboardTheme(THEME_ID_LXX_BASE_BORDER, R.style.KeyboardTheme_LXX_Base_Border),
             KeyboardTheme(THEME_ID_ROUNDED_BASE, R.style.KeyboardTheme_Rounded_Base),
-            KeyboardTheme(THEME_ID_ROUNDED_BASE_BORDER, R.style.KeyboardTheme_Rounded_Base_Border)
+            KeyboardTheme(THEME_ID_ROUNDED_BASE_BORDER, R.style.KeyboardTheme_Rounded_Base_Border),
+            KeyboardTheme(THEME_ID_MECHANICAL, R.style.KeyboardTheme_Mechanical)
         )
 
         // named colors, with names from old settings
@@ -117,14 +134,21 @@ private constructor(val themeId: Int, @JvmField val mStyleId: Int) {
         fun getKeyboardTheme(context: Context): KeyboardTheme {
             val prefs = context.prefs()
             val style = prefs.getString(Settings.PREF_THEME_STYLE, Defaults.PREF_THEME_STYLE)
-            val borders = prefs.getBoolean(Settings.PREF_THEME_KEY_BORDERS, Defaults.PREF_THEME_KEY_BORDERS)
+            val borders = hasKeyBorders(prefs)
             val matchingId = when (style) {
                 STYLE_HOLO -> THEME_ID_HOLO_BASE
+                STYLE_MECHANICAL -> THEME_ID_MECHANICAL
                 STYLE_ROUNDED -> if (borders) THEME_ID_ROUNDED_BASE_BORDER else THEME_ID_ROUNDED_BASE
                 else -> if (borders) THEME_ID_LXX_BASE_BORDER else THEME_ID_LXX_BASE
             }
             return KEYBOARD_THEMES.firstOrNull { it.themeId == matchingId } ?: KEYBOARD_THEMES[DEFAULT_THEME_ID]
         }
+
+        /** Mechanical keycaps need visible key backgrounds, so borders are always on for that style. */
+        @JvmStatic
+        fun hasKeyBorders(prefs: SharedPreferences) =
+            prefs.getString(Settings.PREF_THEME_STYLE, Defaults.PREF_THEME_STYLE) == STYLE_MECHANICAL
+                || prefs.getBoolean(Settings.PREF_THEME_KEY_BORDERS, Defaults.PREF_THEME_KEY_BORDERS)
 
         fun getThemeActionAndEmojiKeyLabelFlags(themeId: Int): Int {
             return if (themeId == THEME_ID_LXX_BASE || themeId == THEME_ID_ROUNDED_BASE) Key.LABEL_FLAGS_KEEP_BACKGROUND_ASPECT_RATIO else 0
@@ -145,7 +169,7 @@ private constructor(val themeId: Int, @JvmField val mStyleId: Int) {
         }
 
         private fun getThemeColors(themeName: String, themeStyle: String, context: Context, prefs: SharedPreferences, isNight: Boolean): Colors {
-            val hasBorders = prefs.getBoolean(Settings.PREF_THEME_KEY_BORDERS, Defaults.PREF_THEME_KEY_BORDERS)
+            val hasBorders = hasKeyBorders(prefs)
             val backgroundImage = Settings.readUserBackgroundImage(context, isNight)
             return when (themeName) {
                 THEME_DYNAMIC -> {
@@ -299,6 +323,19 @@ private constructor(val themeId: Int, @JvmField val mStyleId: Int) {
                     Color.WHITE,
                     Color.WHITE,
                     keyboardBackground = backgroundImage
+                )
+                THEME_TEAL -> DefaultColors( // dark navy with teal keycaps and orange accent, made for the Mechanical style
+                    themeStyle,
+                    hasBorders,
+                    Color.rgb(254, 138, 32), // accent
+                    Color.rgb(10, 23, 29), // background
+                    Color.rgb(43, 67, 75), // keys
+                    Color.rgb(32, 96, 105), // functional keys
+                    Color.rgb(43, 67, 75), // spacebar
+                    Color.rgb(245, 240, 230), // key text, warm white
+                    Color.rgb(179, 202, 210), // hint text
+                    keyboardBackground = backgroundImage,
+                    mechanicalKeycaps = TEAL_KEYCAPS,
                 )
                 THEME_PINK -> DefaultColors(
                     themeStyle,
@@ -492,7 +529,7 @@ private constructor(val themeId: Int, @JvmField val mStyleId: Int) {
                     val background = determineUserColor(colors, context, COLOR_BACKGROUND, isNight)
                     return if (isBrightColor(background)) {
                         // but if key borders are enabled, we still want reasonable contrast
-                        if (!context.prefs().getBoolean(Settings.PREF_THEME_KEY_BORDERS, Defaults.PREF_THEME_KEY_BORDERS)
+                        if (!hasKeyBorders(context.prefs())
                             || isGoodContrast(Color.BLACK, determineUserColor(colors, context, COLOR_KEYS, isNight))
                         ) Color.BLACK
                         else Color.GRAY

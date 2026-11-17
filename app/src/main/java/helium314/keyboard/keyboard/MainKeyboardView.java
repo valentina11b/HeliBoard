@@ -826,7 +826,7 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
         // Draw language text with shadow
         final float descent = paint.descent();
         final float textHeight = -paint.ascent() + descent;
-        final float baseline = height / 2f + textHeight / 2;
+        final float baseline = height / 2f + textHeight / 2 + getFaceOffsetY();
         if (mLanguageOnSpacebarTextShadowRadius > 0.0f) {
             paint.setShadowLayer(mLanguageOnSpacebarTextShadowRadius, 0, 0,
                     mLanguageOnSpacebarTextShadowColor);

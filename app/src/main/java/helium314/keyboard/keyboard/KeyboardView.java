@@ -6,6 +6,7 @@
 
 package helium314.keyboard.keyboard;
 
+import static helium314.keyboard.keyboard.KeyboardTheme.STYLE_MECHANICAL;
 import static helium314.keyboard.keyboard.KeyboardTheme.STYLE_ROUNDED;
 
 import android.content.Context;
@@ -55,6 +56,11 @@ public class KeyboardView extends View {
     private final String mKeyPopupHintLetter;
     private final float mKeyPopupHintLetterPadding;
     private final float mKeyShiftedLetterHintPadding;
+    // mechanical keycaps: labels/icons move up onto the face, and everything sinks when pressed; 0 for other styles
+    private final boolean mMechanicalKeycaps;
+    private final float mFaceOffsetY;
+    private final float mHintOffsetY;
+    private final float mPressedTravel;
     private final float mKeyTextShadowRadius;
     private final float mVerticalCorrection;
     private final Drawable mKeyBackground;
@@ -114,14 +120,14 @@ public class KeyboardView extends View {
         else if (this instanceof PopupKeysKeyboardView)
             mKeyBackground = mColors.selectAndColorDrawable(keyboardViewAttr, ColorType.POPUP_KEYS_BACKGROUND);
         else
-            mKeyBackground = mColors.selectAndColorDrawable(keyboardViewAttr, ColorType.KEY_BACKGROUND);
+            mKeyBackground = keyBackground(keyboardViewAttr, ColorType.KEY_BACKGROUND);
         mKeyBackground.getPadding(mKeyBackgroundPadding);
-        mFunctionalKeyBackground = mColors.selectAndColorDrawable(keyboardViewAttr, ColorType.FUNCTIONAL_KEY_BACKGROUND);
-        mSpacebarBackground = mColors.selectAndColorDrawable(keyboardViewAttr, ColorType.SPACE_BAR_BACKGROUND);
+        mFunctionalKeyBackground = keyBackground(keyboardViewAttr, ColorType.FUNCTIONAL_KEY_BACKGROUND);
+        mSpacebarBackground = keyBackground(keyboardViewAttr, ColorType.SPACE_BAR_BACKGROUND);
         if (this instanceof PopupKeysKeyboardView)
             mActionKeyBackground = mColors.selectAndColorDrawable(keyboardViewAttr, ColorType.ACTION_KEY_POPUP_KEYS_BACKGROUND);
         else
-            mActionKeyBackground = mColors.selectAndColorDrawable(keyboardViewAttr, ColorType.ACTION_KEY_BACKGROUND);
+            mActionKeyBackground = keyBackground(keyboardViewAttr, ColorType.ACTION_KEY_BACKGROUND);
 
         mSpacebarIconWidthRatio = keyboardViewAttr.getFloat(
                 R.styleable.KeyboardView_spacebarIconWidthRatio, 1.0f);
@@ -132,6 +138,18 @@ public class KeyboardView extends View {
                 : "";
         mKeyPopupHintLetterPadding = keyboardViewAttr.getDimension(
                 R.styleable.KeyboardView_keyPopupHintLetterPadding, 0.0f);
+        mMechanicalKeycaps = mColors.getThemeStyle().equals(STYLE_MECHANICAL)
+                && !(this instanceof PopupKeysKeyboardView) && !(this instanceof MoreSuggestionsView)
+                && !(this instanceof EmojiPageKeyboardView);
+        if (mMechanicalKeycaps) {
+            mFaceOffsetY = getResources().getDimension(R.dimen.mechanical_label_offset);
+            mPressedTravel = getResources().getDimension(R.dimen.mechanical_keycap_travel);
+            mHintOffsetY = getResources().getDimension(R.dimen.mechanical_hint_top);
+        } else {
+            mFaceOffsetY = 0f;
+            mPressedTravel = 0f;
+            mHintOffsetY = 0f;
+        }
         mKeyShiftedLetterHintPadding = keyboardViewAttr.getDimension(
                 R.styleable.KeyboardView_keyShiftedLetterHintPadding, 0.0f);
         mKeyTextShadowRadius = keyboardViewAttr.getFloat(
@@ -148,6 +166,20 @@ public class KeyboardView extends View {
 
         mPaint.setAntiAlias(true);
         setFitsSystemWindows(true);
+    }
+
+    /** Exact-color keycap if the color preset defines one for the Mechanical style, otherwise the tinted style drawable. */
+    private Drawable keyBackground(final TypedArray attr, final ColorType type) {
+        final java.util.Map<ColorType, KeycapColors> keycaps = mColors.getMechanicalKeycaps();
+        final KeycapColors colors = keycaps == null ? null : keycaps.get(type);
+        if (colors != null && mColors.getThemeStyle().equals(STYLE_MECHANICAL))
+            return MechanicalKeycaps.INSTANCE.drawable(getResources(), colors);
+        return mColors.selectAndColorDrawable(attr, type);
+    }
+
+    /** Vertical offset that centers content on a mechanical keycap face, 0 for other styles. */
+    protected float getFaceOffsetY() {
+        return mFaceOffsetY;
     }
 
     @Nullable
@@ -343,7 +375,10 @@ public class KeyboardView extends View {
                     mKeyBackground, mFunctionalKeyBackground, mSpacebarBackground, mActionKeyBackground);
             onDrawKeyBackground(key, canvas, background);
         }
+        final float pressOffsetY = !key.isSpacer() && key.showsPressedBackground() ? mPressedTravel : 0f;
+        canvas.translate(0, pressOffsetY);
         onDrawKeyTopVisuals(key, canvas, paint, params);
+        canvas.translate(0, -pressOffsetY);
 
         canvas.translate(-keyDrawX, -keyDrawY);
     }
@@ -396,7 +431,7 @@ public class KeyboardView extends View {
             final float labelCharWidth = TypefaceUtils.getReferenceCharWidth(paint);
 
             // Vertical label text alignment.
-            labelBaseline = centerY + labelCharHeight / 2.0f;
+            labelBaseline = centerY + labelCharHeight / 2.0f + mFaceOffsetY;
 
             // Horizontal label text alignment
             if (key.isAlignLabelOffCenter() && mShowsHints) {
@@ -492,7 +527,7 @@ public class KeyboardView extends View {
                 // The hint letter is placed at top-right corner of the key. Used mainly on phone.
                 final float hintDigitWidth = TypefaceUtils.getReferenceDigitWidth(paint);
                 final float hintLabelWidth = TypefaceUtils.getStringWidth(hintLabel, paint);
-                hintBaseline = -paint.ascent();
+                hintBaseline = -paint.ascent() + mHintOffsetY;
                 hintX = isFunctionalKeyAndRoundedStyle
                         ? keyWidth - hintBaseline
                         : keyWidth - mKeyHintLetterPadding - Math.max(hintDigitWidth, hintLabelWidth) / 2.0f;
@@ -540,7 +575,7 @@ public class KeyboardView extends View {
             int iconHeight = (int) (icon.getIntrinsicHeight() * mIconScaleFactor);
             int iconY = key.isAlignIconToBottom()
                 ? keyHeight - iconHeight
-                : (keyHeight - iconHeight) / 2; // Align vertically center.
+                : (int) ((keyHeight - iconHeight) / 2 + mFaceOffsetY); // Align vertically center.
             int iconX = (keyWidth - iconWidth) / 2; // Align horizontally center.
             setKeyIconColor(key, icon, keyboard);
             drawIcon(canvas, icon, iconX, iconY, iconWidth, iconHeight);
@@ -638,6 +673,8 @@ public class KeyboardView extends View {
     private void setKeyIconColor(Key key, Drawable icon, Keyboard keyboard) {
         if (key.hasActionKeyBackground()) {
             mColors.setColor(icon, ColorType.ACTION_KEY_ICON);
+        } else if (mMechanicalKeycaps && (key.isShift() || key.getBackgroundType() != Key.BACKGROUND_TYPE_NORMAL)) {
+            icon.setColorFilter(mColors.get(ColorType.ACTION_KEY_BACKGROUND), PorterDuff.Mode.SRC_IN); // mechanical: accent icons
         } else if (key.isShift() && keyboard != null) {
             if (keyboard.mId.getElement().isAlphabetShifted())
                 mColors.setColor(icon, ColorType.SHIFT_KEY_ICON);

@@ -112,7 +112,7 @@ object DictionaryInfoUtils {
 
     @JvmStatic
     fun getCachedDictForLocaleAndType(locale: Locale, type: String, context: Context): File? =
-        getCachedDictsForLocale(locale, context).firstOrNull { it.name.substringBefore("_") == type }
+        getCachedDictsForLocale(locale, context).firstOrNull { it.name.substringBefore("_").substringBefore(".") == type }
 
     fun getCachedDictsForLocale(locale: Locale, context: Context) =
         getCacheDirectoryForLocale(locale, context)?.let { File(it).listFiles() }.orEmpty()

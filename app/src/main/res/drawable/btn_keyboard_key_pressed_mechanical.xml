@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pressed keycap: the top face sinks by mechanical_keycap_travel and the visible side wall shrinks. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:top="@dimen/mechanical_keycap_travel">
+        <shape android:shape="rectangle">
+            <gradient android:angle="270"
+                android:startColor="@color/mechanical_keycap_side_top"
+                android:endColor="@color/mechanical_keycap_side_bottom" />
+            <corners android:radius="@dimen/mechanical_keycap_corner" />
+        </shape>
+    </item>
+    <item
+        android:left="@dimen/mechanical_keycap_side"
+        android:right="@dimen/mechanical_keycap_side"
+        android:top="@dimen/mechanical_keycap_top_pressed"
+        android:bottom="@dimen/mechanical_keycap_bottom_pressed">
+        <shape android:shape="rectangle">
+            <gradient android:angle="270"
+                android:startColor="@color/mechanical_keycap_face_top_pressed"
+                android:endColor="@color/mechanical_keycap_face_bottom_pressed" />
+            <corners android:radius="@dimen/mechanical_keycap_face_corner" />
+        </shape>
+    </item>
+</layer-list>

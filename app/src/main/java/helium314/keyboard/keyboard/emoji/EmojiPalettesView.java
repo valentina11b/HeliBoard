@@ -22,6 +22,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -119,6 +121,9 @@ public final class EmojiPalettesView extends LinearLayout
             });
 
             emojiRecyclerView.setPersistentDrawingCache(PERSISTENT_NO_CACHE);
+            // partly scrolled rows fade out instead of being cut at the edges
+            emojiRecyclerView.setVerticalFadingEdgeEnabled(true);
+            emojiRecyclerView.setFadingEdgeLength((int) (16 * parent.getResources().getDisplayMetrics().density));
             return viewHolder;
         }
 
@@ -221,6 +226,7 @@ public final class EmojiPalettesView extends LinearLayout
 
     @Override
     protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
+        applyNavBarPadding();
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         final Resources res = getContext().getResources();
         // The main keyboard expands to the entire this {@link KeyboardView}.
@@ -230,6 +236,15 @@ public final class EmojiPalettesView extends LinearLayout
                 + getPaddingTop() + getPaddingBottom();
         mEmojiCategoryPageIndicatorView.mWidth = width;
         setMeasuredDimension(width, height);
+    }
+
+    // fitsSystemWindows doesn't give this view the nav bar padding on some devices, so set it from the root insets
+    private void applyNavBarPadding() {
+        final WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(this);
+        if (insets == null) return;
+        final int bottom = insets.getSystemWindowInsetBottom();
+        if (getPaddingBottom() != bottom)
+            setPadding(getPaddingLeft(), getPaddingTop(), getPaddingRight(), bottom);
     }
 
     private void addTab(LinearLayout host, EmojiCategory.Category category) {

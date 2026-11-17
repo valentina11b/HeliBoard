@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Raised keycap in grayscale; theme colors are multiplied in, so grays become darker shades. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- keycap sides -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient android:angle="270"
+                android:startColor="@color/mechanical_keycap_side_top"
+                android:endColor="@color/mechanical_keycap_side_bottom" />
+            <corners android:radius="@dimen/mechanical_keycap_corner" />
+        </shape>
+    </item>
+    <!-- top face -->
+    <item
+        android:left="@dimen/mechanical_keycap_side"
+        android:right="@dimen/mechanical_keycap_side"
+        android:top="@dimen/mechanical_keycap_top"
+        android:bottom="@dimen/mechanical_keycap_bottom">
+        <shape android:shape="rectangle">
+            <gradient android:angle="270"
+                android:startColor="@color/mechanical_keycap_face_top"
+                android:endColor="@color/mechanical_keycap_face_bottom" />
+            <corners android:radius="@dimen/mechanical_keycap_face_corner" />
+        </shape>
+    </item>
+</layer-list>

@@ -13,6 +13,7 @@ import android.view.HapticFeedbackConstants;
 import android.view.View;
 
 import helium314.keyboard.event.HapticEvent;
+import helium314.keyboard.keyboard.KeyboardTheme;
 import helium314.keyboard.keyboard.internal.keyboard_parser.floris.KeyCode;
 import helium314.keyboard.latin.common.Constants;
 import helium314.keyboard.latin.settings.SettingsValues;
@@ -26,6 +27,8 @@ import helium314.keyboard.latin.settings.SettingsValues;
 public final class AudioAndHapticFeedbackManager {
     private AudioManager mAudioManager;
     private Vibrator mVibrator;
+    private Context mContext;
+    private MechanicalFeedback mMechanicalFeedback; // only while the Mechanical style is active
 
     private SettingsValues mSettingsValues;
     private boolean mSoundOn;
@@ -49,6 +52,7 @@ public final class AudioAndHapticFeedbackManager {
     private void initInternal(final Context context) {
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         mVibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        mContext = context.getApplicationContext();
     }
 
     public void performHapticAndAudioFeedback(
@@ -56,7 +60,7 @@ public final class AudioAndHapticFeedbackManager {
         final View viewToPerformHapticFeedbackOn,
         final HapticEvent hapticEvent
     ) {
-        performHapticFeedback(viewToPerformHapticFeedbackOn, hapticEvent);
+        performHapticFeedback(viewToPerformHapticFeedbackOn, hapticEvent, code);
         performAudioFeedback(code, hapticEvent);
     }
 
@@ -89,6 +93,10 @@ public final class AudioAndHapticFeedbackManager {
         if (hapticEvent != HapticEvent.KEY_PRESS) {
             return;
         }
+        if (mMechanicalFeedback != null) {
+            mMechanicalFeedback.playSound(code, mSettingsValues.mKeypressSoundVolume);
+            return;
+        }
         final int sound = switch (code) {
             case KeyCode.DELETE -> AudioManager.FX_KEYPRESS_DELETE;
             case Constants.CODE_ENTER -> AudioManager.FX_KEYPRESS_RETURN;
@@ -99,6 +107,10 @@ public final class AudioAndHapticFeedbackManager {
     }
 
     public void performHapticFeedback(final View viewToPerformHapticFeedbackOn, final HapticEvent hapticEvent) {
+        performHapticFeedback(viewToPerformHapticFeedbackOn, hapticEvent, KeyCode.NOT_SPECIFIED);
+    }
+
+    public void performHapticFeedback(final View viewToPerformHapticFeedbackOn, final HapticEvent hapticEvent, final int code) {
         if (!mSettingsValues.mVibrateOn || (mDoNotDisturb && !mSettingsValues.mVibrateInDndMode)) {
             return;
         }
@@ -108,6 +120,11 @@ public final class AudioAndHapticFeedbackManager {
         }
         if (hapticEvent.allowCustomDuration && mSettingsValues.mKeypressVibrationDuration >= 0) {
             vibrate(mSettingsValues.mKeypressVibrationDuration);
+            return;
+        }
+        if (mMechanicalFeedback != null && hasVibrator()
+                && (hapticEvent == HapticEvent.KEY_PRESS || hapticEvent == HapticEvent.KEY_REPEAT)
+                && mMechanicalFeedback.vibrate(mVibrator, code)) {
             return;
         }
         // Go ahead with the system default
@@ -121,6 +138,13 @@ public final class AudioAndHapticFeedbackManager {
     public void onSettingsChanged(final SettingsValues settingsValues) {
         mSettingsValues = settingsValues;
         mSoundOn = reevaluateIfSoundIsOn();
+        final boolean mechanical = KeyboardTheme.STYLE_MECHANICAL.equals(settingsValues.mColors.getThemeStyle());
+        if (mechanical && mMechanicalFeedback == null && mContext != null) {
+            mMechanicalFeedback = new MechanicalFeedback(mContext);
+        } else if (!mechanical && mMechanicalFeedback != null) {
+            mMechanicalFeedback.release();
+            mMechanicalFeedback = null;
+        }
     }
 
     public void onRingerModeChanged(boolean doNotDisturb) {

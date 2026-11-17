@@ -14,6 +14,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import helium314.keyboard.latin.ClipboardHistoryEntry
 import helium314.keyboard.latin.ClipboardHistoryManager
+import helium314.keyboard.keyboard.KeyboardTheme
+import helium314.keyboard.keyboard.MechanicalKeycaps
 import helium314.keyboard.latin.R
 import helium314.keyboard.latin.common.ColorType
 import helium314.keyboard.latin.settings.Settings
@@ -61,7 +63,18 @@ class ClipboardAdapter(
                 setBackgroundResource(itemBackgroundId)
                 isHapticFeedbackEnabled = false
             }
-            Settings.getValues().mColors.setBackground(view, ColorType.KEY_BACKGROUND)
+            val colors = Settings.getValues().mColors
+            val keycap = colors.mechanicalKeycaps?.get(ColorType.KEY_BACKGROUND)
+            if (keycap != null && colors.themeStyle == KeyboardTheme.STYLE_MECHANICAL)
+                view.background = MechanicalKeycaps.drawable(view.resources, keycap)
+            else
+                colors.setBackground(view, ColorType.KEY_BACKGROUND)
+            if (colors.themeStyle == KeyboardTheme.STYLE_MECHANICAL) { // keep content on the keycap face
+                val res = view.resources
+                val side = res.getDimensionPixelSize(R.dimen.mechanical_keycap_side)
+                view.setPadding(side, res.getDimensionPixelSize(R.dimen.mechanical_keycap_top),
+                    side, res.getDimensionPixelSize(R.dimen.mechanical_keycap_bottom))
+            }
             pinnedIconView = view.findViewById<ImageView>(R.id.clipboard_entry_pinned_icon).apply {
                 visibility = View.GONE
                 setImageResource(pinnedIconResId)
@@ -73,7 +86,6 @@ class ClipboardAdapter(
             }
             contentImageView = view.findViewById(R.id.clipboard_entry_image_content)
             clipboardLayoutParams.setItemProperties(view)
-            val colors = Settings.getValues().mColors
             colors.setColor(pinnedIconView, ColorType.CLIPBOARD_PIN)
         }
 

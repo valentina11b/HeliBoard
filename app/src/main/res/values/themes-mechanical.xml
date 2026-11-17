@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-only -->
+<!-- Based on Rounded_Base_Border, with raised keycaps for all key types. -->
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <style name="KeyboardTheme.Mechanical"
+        parent="KeyboardTheme.Rounded_Base_Border">
+        <item name="keyboardStyle">@style/Keyboard.Mechanical</item>
+        <item name="keyboardViewStyle">@style/KeyboardView.Mechanical</item>
+        <item name="mainKeyboardViewStyle">@style/MainKeyboardView.Mechanical</item>
+        <item name="emojiPalettesViewStyle">@style/EmojiPalettesView.Mechanical</item>
+        <item name="clipboardHistoryViewStyle">@style/ClipboardHistoryView.Mechanical</item>
+    </style>
+
+    <style name="Keyboard.Mechanical" parent="Keyboard">
+        <!-- This should be aligned with KeyboardTheme.THEME_ID_* -->
+        <item name="themeId">Mechanical</item>
+    </style>
+
+    <style name="KeyboardView.Mechanical" parent="KeyboardView.Rounded_Base_Border">
+        <item name="keyHintLetterPadding">@dimen/mechanical_hint_padding</item>
+        <item name="keyTypeface">bold</item>
+        <item name="keyLetterSize">@fraction/mechanical_key_letter_ratio</item>
+        <item name="keyHintLetterRatio">@fraction/mechanical_key_hint_letter_ratio</item>
+        <item name="keyBackground">@drawable/btn_keyboard_key_mechanical</item>
+        <item name="functionalKeyBackground">@drawable/btn_keyboard_key_mechanical</item>
+        <item name="spacebarBackground">@drawable/btn_keyboard_key_mechanical</item>
+    </style>
+
+    <style name="MainKeyboardView.Mechanical" parent="MainKeyboardView.Rounded_Base_Border">
+        <item name="keyHintLetterPadding">@dimen/mechanical_hint_padding</item>
+        <item name="keyTypeface">bold</item>
+        <item name="keyLetterSize">@fraction/mechanical_key_letter_ratio</item>
+        <item name="keyHintLetterRatio">@fraction/mechanical_key_hint_letter_ratio</item>
+        <item name="keyBackground">@drawable/btn_keyboard_key_mechanical</item>
+        <item name="functionalKeyBackground">@drawable/btn_keyboard_key_mechanical</item>
+        <item name="spacebarBackground">@drawable/btn_keyboard_key_mechanical</item>
+    </style>
+
+    <style name="EmojiPalettesView.Mechanical" parent="EmojiPalettesView.Rounded_Base_Border">
+        <item name="keyBackground">@drawable/btn_keyboard_key_mechanical</item>
+        <item name="functionalKeyBackground">@drawable/btn_keyboard_key_mechanical</item>
+        <item name="spacebarBackground">@drawable/btn_keyboard_key_mechanical</item>
+    </style>
+
+    <style name="ClipboardHistoryView.Mechanical" parent="ClipboardHistoryView.Rounded_Base_Border">
+        <item name="keyBackground">@drawable/btn_keyboard_key_mechanical</item>
+        <item name="functionalKeyBackground">@drawable/btn_keyboard_key_mechanical</item>
+    </style>
+</resources>

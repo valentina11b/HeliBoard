@@ -214,6 +214,10 @@
     <string name="clipboard_history_pinned_first">Show pinned items on top</string>
     <!-- Preferences item for extending the clipboard history to files (images or others) -->
     <string name="clipboard_history_files">Add images and other files to clipboard history</string>
+    <!-- Preferences item for showing recent screenshots in the clipboard view -->
+    <string name="clipboard_show_screenshots">Show recent screenshots</string>
+    <!-- Description for "clipboard_show_screenshots" option -->
+    <string name="clipboard_show_screenshots_summary">Needs access to your photos</string>
     <!-- Preferences item for selecting maximum combined size of clipboard history files -->
     <string name="clipboard_history_max_file_size">Clipboard size limit</string>
     <!-- Description, used for non-image clipboard files -->
@@ -263,6 +267,8 @@
     <string name="checksum_mismatch_message">Unknown library file. Are you sure you got it from a trusted source and it is for \'%s\'?</string>
     <!-- Button text for loading gesture library -->
     <string name="load_gesture_library_button_load">Load library</string>
+    <!-- Button text for downloading the gesture library in the browser -->
+    <string name="load_gesture_library_button_download">Download</string>
     <!-- Button text for deleting gesture library -->
     <string name="load_gesture_library_button_delete">Delete library</string>
     <!-- Preferences item for inserting space after punctuation -->
@@ -753,6 +759,7 @@ New dictionary:
     <string name="theme_name_indigo" tools:keep="@string/theme_name_indigo">Indigo</string>
     <!-- Theme name for ocean theme -->
     <string name="theme_name_ocean" tools:keep="@string/theme_name_ocean">Ocean</string>
+    <string name="theme_name_teal" tools:keep="@string/theme_name_teal">Teal</string>
     <!-- Theme name for pink theme -->
     <string name="theme_name_pink" tools:keep="@string/theme_name_pink">Pink</string>
     <!-- Theme name for sand theme -->
@@ -1274,6 +1281,7 @@ New dictionary:
     <!-- Toolbar key to enable / disable background gesture data gathering
      string will probably be removed once data gathering is finished (end of 2026 latest) -->
     <string name="background_gathering" tools:keep="@string/background_gathering">Background data gathering</string>
+    <string name="passwords" tools:keep="@string/passwords">Passwords</string>
     <!-- Review screen menu entry to display actively gathered data
      string will probably be removed once data gathering is finished (end of 2026 latest) -->
     <string name="gesture_data_show_active">Show actively gathered data</string>
