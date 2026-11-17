@@ -170,11 +170,14 @@ public class KeyboardView extends View {
 
     /** Exact-color keycap if the color preset defines one for the Mechanical style, otherwise the tinted style drawable. */
     private Drawable keyBackground(final TypedArray attr, final ColorType type) {
+        final boolean isKeycap = type == ColorType.KEY_BACKGROUND || type == ColorType.FUNCTIONAL_KEY_BACKGROUND
+                || type == ColorType.SPACE_BAR_BACKGROUND || type == ColorType.ACTION_KEY_BACKGROUND;
+        if (!isKeycap || !mColors.getThemeStyle().equals(STYLE_MECHANICAL))
+            return mColors.selectAndColorDrawable(attr, type);
         final java.util.Map<ColorType, KeycapColors> keycaps = mColors.getMechanicalKeycaps();
-        final KeycapColors colors = keycaps == null ? null : keycaps.get(type);
-        if (colors != null && mColors.getThemeStyle().equals(STYLE_MECHANICAL))
-            return MechanicalKeycaps.INSTANCE.drawable(getResources(), colors);
-        return mColors.selectAndColorDrawable(attr, type);
+        KeycapColors colors = keycaps == null ? null : keycaps.get(type);
+        if (colors == null) colors = MechanicalKeycaps.INSTANCE.derive(mColors.get(type));
+        return MechanicalKeycaps.INSTANCE.drawable(getResources(), colors);
     }
 
     /** Vertical offset that centers content on a mechanical keycap face, 0 for other styles. */

@@ -64,9 +64,9 @@ class ClipboardAdapter(
                 isHapticFeedbackEnabled = false
             }
             val colors = Settings.getValues().mColors
-            val keycap = colors.mechanicalKeycaps?.get(ColorType.KEY_BACKGROUND)
-            if (keycap != null && colors.themeStyle == KeyboardTheme.STYLE_MECHANICAL)
-                view.background = MechanicalKeycaps.drawable(view.resources, keycap)
+            if (colors.themeStyle == KeyboardTheme.STYLE_MECHANICAL)
+                view.background = MechanicalKeycaps.drawable(view.resources, colors.mechanicalKeycaps?.get(ColorType.KEY_BACKGROUND)
+                    ?: MechanicalKeycaps.derive(colors.get(ColorType.KEY_BACKGROUND)))
             else
                 colors.setBackground(view, ColorType.KEY_BACKGROUND)
             if (colors.themeStyle == KeyboardTheme.STYLE_MECHANICAL) { // keep content on the keycap face

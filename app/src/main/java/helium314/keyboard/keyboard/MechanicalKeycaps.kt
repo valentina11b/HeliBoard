@@ -28,6 +28,17 @@ class KeycapColors(
 
 /** Keycaps with exact colors: one rounded block with a lit top rim, the face in its upper part and a darker front band. */
 object MechanicalKeycaps {
+    /** Keycap shades for any key color, so user-picked colors get the same 3D look (ratios from the Teal keycaps). */
+    fun derive(@ColorInt key: Int) = KeycapColors(
+        highlight = ColorUtils.blendARGB(key, Color.WHITE, 0.12f),
+        faceLeft = key, faceRight = scale(key, 0.8f),
+        sideLeft = scale(key, 0.85f), sideRight = scale(key, 0.6f),
+        wallTop = scale(key, 0.72f), wallBottom = scale(key, 0.55f),
+    )
+
+    private fun scale(color: Int, factor: Float) = Color.argb(Color.alpha(color),
+        (Color.red(color) * factor).toInt(), (Color.green(color) * factor).toInt(), (Color.blue(color) * factor).toInt())
+
     fun drawable(res: Resources, colors: KeycapColors): Drawable {
         val pressed = KeycapDrawable(res, colors, pressed = true)
         return StateListDrawable().apply {
