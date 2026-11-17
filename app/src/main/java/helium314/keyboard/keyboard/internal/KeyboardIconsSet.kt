@@ -25,6 +25,7 @@ class KeyboardIconsSet private constructor() {
         val defaultIds = when (iconStyle) {
             KeyboardTheme.STYLE_HOLO -> keyboardIconsHolo
             KeyboardTheme.STYLE_ROUNDED -> keyboardIconsRounded
+            KeyboardTheme.STYLE_MECHANICAL -> keyboardIconsTabler
             else -> keyboardIconsMaterial
         }
         val overrideIds = customIconIds(context, prefs)
@@ -295,6 +296,71 @@ class KeyboardIconsSet private constructor() {
             }
         } }
 
+        // Tabler outline icons (tools/make_tabler_icons.py); keys without a Tabler icon keep the Material one
+        private val keyboardIconsTabler by lazy { HashMap(keyboardIconsMaterial).apply {
+            putAll(mapOf(
+                NAME_SHIFT_KEY to                   R.drawable.tabler_shift,
+                NAME_SHIFT_KEY_SHIFTED to           R.drawable.tabler_shifted,
+                NAME_SHIFT_KEY_LOCKED to            R.drawable.tabler_shift_lock,
+                NAME_DELETE_KEY to                  R.drawable.tabler_delete,
+                NAME_ENTER_KEY to                   R.drawable.tabler_enter,
+                NAME_GO_KEY to                      R.drawable.tabler_go,
+                NAME_SEARCH_KEY to                  R.drawable.tabler_search,
+                NAME_SEND_KEY to                    R.drawable.tabler_send,
+                NAME_DONE_KEY to                    R.drawable.tabler_done,
+                NAME_NEXT_KEY to                    R.drawable.tabler_arrow_right,
+                NAME_PREVIOUS_KEY to                R.drawable.tabler_arrow_left,
+                NAME_TAB_KEY to                     R.drawable.tabler_tab,
+                NAME_SPACE_KEY_FOR_NUMBER_LAYOUT to R.drawable.tabler_space,
+                NAME_SHORTCUT_KEY_DISABLED to       R.drawable.tabler_voice_off,
+                NAME_LANGUAGE_SWITCH_KEY to         R.drawable.tabler_language,
+                NAME_STOP_ONEHANDED_KEY to          R.drawable.tabler_stop_onehanded,
+                NAME_SWITCH_ONEHANDED_KEY to        R.drawable.tabler_arrow_left,
+                NAME_RESIZE_ONEHANDED_KEY to        R.drawable.tabler_arrows_horizontal,
+                NAME_TOOLBAR_KEY to                 R.drawable.tabler_toolbar,
+                NAME_BIN to                         R.drawable.tabler_bin,
+            ))
+            ToolbarKey.entries.forEach { key ->
+                when (key) {
+                    ToolbarKey.VOICE -> R.drawable.tabler_voice
+                    ToolbarKey.CLIPBOARD -> R.drawable.tabler_clipboard
+                    ToolbarKey.NUMPAD -> R.drawable.tabler_numpad
+                    ToolbarKey.DPAD -> R.drawable.tabler_dpad
+                    ToolbarKey.UNDO -> R.drawable.tabler_undo
+                    ToolbarKey.REDO -> R.drawable.tabler_redo
+                    ToolbarKey.SETTINGS -> R.drawable.tabler_settings
+                    ToolbarKey.SELECT_ALL -> R.drawable.tabler_select_all
+                    ToolbarKey.SELECT_WORD -> R.drawable.tabler_select_word
+                    ToolbarKey.COPY -> R.drawable.tabler_copy
+                    ToolbarKey.CUT -> R.drawable.tabler_cut
+                    ToolbarKey.PASTE -> R.drawable.tabler_paste
+                    ToolbarKey.ONE_HANDED -> R.drawable.tabler_onehanded
+                    ToolbarKey.FLOATING -> R.drawable.tabler_floating
+                    ToolbarKey.INCOGNITO -> R.drawable.tabler_incognito
+                    ToolbarKey.AUTOCORRECT -> R.drawable.tabler_autocorrect
+                    ToolbarKey.CLEAR_CLIPBOARD -> R.drawable.tabler_clear_clipboard
+                    ToolbarKey.CLOSE_HISTORY -> R.drawable.tabler_close
+                    ToolbarKey.EMOJI -> R.drawable.tabler_emoji
+                    ToolbarKey.LEFT -> R.drawable.tabler_chevron_left
+                    ToolbarKey.RIGHT -> R.drawable.tabler_chevron_right
+                    ToolbarKey.UP -> R.drawable.tabler_chevron_up
+                    ToolbarKey.DOWN -> R.drawable.tabler_chevron_down
+                    ToolbarKey.WORD_LEFT -> R.drawable.tabler_word_left
+                    ToolbarKey.WORD_RIGHT -> R.drawable.tabler_word_right
+                    ToolbarKey.PAGE_UP -> R.drawable.tabler_page_up
+                    ToolbarKey.PAGE_DOWN -> R.drawable.tabler_page_down
+                    ToolbarKey.FULL_LEFT -> R.drawable.tabler_to_start
+                    ToolbarKey.FULL_RIGHT -> R.drawable.tabler_to_end
+                    ToolbarKey.PAGE_START -> R.drawable.tabler_page_start
+                    ToolbarKey.PAGE_END -> R.drawable.tabler_page_end
+                    ToolbarKey.SPLIT -> R.drawable.tabler_split
+                    ToolbarKey.PASSWORDS -> R.drawable.tabler_password
+                    ToolbarKey.TRANSLATE -> R.drawable.tabler_translate
+                    ToolbarKey.BACKGROUND_GATHERING -> null
+                }?.let { put(key.name.lowercase(Locale.US), it) }
+            }
+        } }
+
         fun getAllIcons(context: Context): Map<String, List<Int>> {
             // currently active style first
             val iconStyle = context.prefs().getString(Settings.PREF_ICON_STYLE, Defaults.PREF_ICON_STYLE(context.prefs()))
@@ -302,6 +368,7 @@ class KeyboardIconsSet private constructor() {
                 name to when (iconStyle) {
                     KeyboardTheme.STYLE_HOLO -> listOfNotNull(keyboardIconsHolo[name], keyboardIconsRounded[name], id)
                     KeyboardTheme.STYLE_ROUNDED -> listOfNotNull(keyboardIconsRounded[name], id, keyboardIconsHolo[name])
+                    KeyboardTheme.STYLE_MECHANICAL -> listOfNotNull(keyboardIconsTabler[name], id, keyboardIconsRounded[name])
                     else -> listOfNotNull(id, keyboardIconsRounded[name], keyboardIconsHolo[name])
                 }
             }
