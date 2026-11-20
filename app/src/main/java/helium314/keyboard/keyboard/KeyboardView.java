@@ -60,6 +60,7 @@ public class KeyboardView extends View {
     private final boolean mMechanicalKeycaps;
     private final float mFaceOffsetY;
     private final float mHintOffsetY;
+    private final int mIconBottomInset; // bottom-aligned icons sit at the bottom of the keycap face
     private final float mPressedTravel;
     private final float mKeyTextShadowRadius;
     private final float mVerticalCorrection;
@@ -145,10 +146,13 @@ public class KeyboardView extends View {
             mFaceOffsetY = getResources().getDimension(R.dimen.mechanical_label_offset);
             mPressedTravel = getResources().getDimension(R.dimen.mechanical_keycap_travel);
             mHintOffsetY = getResources().getDimension(R.dimen.mechanical_hint_top);
+            mIconBottomInset = getResources().getDimensionPixelSize(R.dimen.mechanical_keycap_bottom)
+                    + (int) (3 * getResources().getDisplayMetrics().density);
         } else {
             mFaceOffsetY = 0f;
             mPressedTravel = 0f;
             mHintOffsetY = 0f;
+            mIconBottomInset = 0;
         }
         mKeyShiftedLetterHintPadding = keyboardViewAttr.getDimension(
                 R.styleable.KeyboardView_keyShiftedLetterHintPadding, 0.0f);
@@ -577,7 +581,7 @@ public class KeyboardView extends View {
                 : (int) (Math.min(icon.getIntrinsicWidth(), keyWidth) * mIconScaleFactor);
             int iconHeight = (int) (icon.getIntrinsicHeight() * mIconScaleFactor);
             int iconY = key.isAlignIconToBottom()
-                ? keyHeight - iconHeight
+                ? keyHeight - iconHeight - mIconBottomInset
                 : (int) ((keyHeight - iconHeight) / 2 + mFaceOffsetY); // Align vertically center.
             int iconX = (keyWidth - iconWidth) / 2; // Align horizontally center.
             setKeyIconColor(key, icon, keyboard);

@@ -35,4 +35,6 @@
     <!-- smaller bold capitals like on keycap legends -->
     <fraction name="mechanical_key_letter_ratio">36%</fraction>
     <fraction name="mechanical_key_hint_letter_ratio">18%</fraction>
+    <!-- number pad digits, about the size Samsung uses -->
+    <fraction name="mechanical_key_large_letter_ratio">45%</fraction>
 </resources>

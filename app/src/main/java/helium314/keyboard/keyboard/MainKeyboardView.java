@@ -313,7 +313,9 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
 
         mSpaceKey = keyboard.getKey(Constants.CODE_SPACE);
         final int keyHeight = keyboard.mMostCommonKeyHeight - keyboard.mVerticalGap;
-        mLanguageOnSpacebarTextSize = keyHeight * mLanguageOnSpacebarTextRatio;
+        // capped, so the much taller number pad keys don't get a huge language name
+        mLanguageOnSpacebarTextSize = Math.min(keyHeight * mLanguageOnSpacebarTextRatio, android.util.TypedValue.applyDimension(
+                android.util.TypedValue.COMPLEX_UNIT_SP, 16, getResources().getDisplayMetrics()));
 
         if (AccessibilityUtils.Companion.getInstance().isAccessibilityEnabled()) {
             if (mAccessibilityDelegate == null) {
@@ -814,7 +816,15 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
         paint.setTextSize(mLanguageOnSpacebarTextSize);
         final String customText = Settings.getValues().mSpaceBarText;
         final String spaceText;
-        if (!customText.isEmpty()) {
+        if (keyboard.mId.getElement().isNumberLayout()) {
+            // number pad: short language code like Samsung's "SR", the taller keys would make the full name huge
+            paint.setTextSize(Math.min(mLanguageOnSpacebarTextSize, android.util.TypedValue.applyDimension(
+                    android.util.TypedValue.COMPLEX_UNIT_SP, 16, getResources().getDisplayMetrics())));
+            // first letters of the language's own name, so Cyrillic Serbian shows "СР" and Latin "SR"
+            final java.util.Locale locale = keyboard.mId.getSubtype().getLocale();
+            final String ownName = locale.getDisplayLanguage(locale);
+            spaceText = (ownName.length() >= 2 ? ownName.substring(0, 2) : locale.getLanguage()).toUpperCase(locale);
+        } else if (!customText.isEmpty()) {
             spaceText = customText;
         } else if (DebugFlags.DEBUG_ENABLED) {
             final String l = KeyboardSwitcher.getInstance().getLocaleAndConfidenceInfo();

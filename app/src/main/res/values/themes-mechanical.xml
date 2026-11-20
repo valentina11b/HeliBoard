@@ -21,6 +21,7 @@
         <item name="keyTypeface">bold</item>
         <item name="keyLetterSize">@fraction/mechanical_key_letter_ratio</item>
         <item name="keyHintLetterRatio">@fraction/mechanical_key_hint_letter_ratio</item>
+        <item name="keyLargeLetterRatio">@fraction/mechanical_key_large_letter_ratio</item>
         <item name="keyBackground">@drawable/btn_keyboard_key_mechanical</item>
         <item name="functionalKeyBackground">@drawable/btn_keyboard_key_mechanical</item>
         <item name="spacebarBackground">@drawable/btn_keyboard_key_mechanical</item>
@@ -31,6 +32,7 @@
         <item name="keyTypeface">bold</item>
         <item name="keyLetterSize">@fraction/mechanical_key_letter_ratio</item>
         <item name="keyHintLetterRatio">@fraction/mechanical_key_hint_letter_ratio</item>
+        <item name="keyLargeLetterRatio">@fraction/mechanical_key_large_letter_ratio</item>
         <item name="keyBackground">@drawable/btn_keyboard_key_mechanical</item>
         <item name="functionalKeyBackground">@drawable/btn_keyboard_key_mechanical</item>
         <item name="spacebarBackground">@drawable/btn_keyboard_key_mechanical</item>

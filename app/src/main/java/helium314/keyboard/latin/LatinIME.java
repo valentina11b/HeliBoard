@@ -742,6 +742,10 @@ public class LatinIME extends InputMethodService implements
         mRichImm.onSubtypeChanged(subtype);
         mInputLogic.onSubtypeChanged(SubtypeLocaleUtils.getCombiningRulesExtraValue(subtype),
                 mSettings.getCurrent());
+        // stay on the number pad when switching language there, like Samsung's keyboard
+        final helium314.keyboard.keyboard.Keyboard currentKeyboard = mKeyboardSwitcher.getKeyboard();
+        if (currentKeyboard != null && currentKeyboard.mId.getElement() == helium314.keyboard.keyboard.KeyboardElement.NUMPAD)
+            mKeyboardSwitcher.saveKeyboardState();
         loadKeyboard();
         if (hasSuggestionStripView()) {
             mSuggestionStripView.setRtl(mRichImm.getCurrentSubtype().isRtlSubtype());
